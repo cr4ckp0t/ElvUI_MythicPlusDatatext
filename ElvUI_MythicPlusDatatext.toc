@@ -1,0 +1,24 @@
+## Interface: 90100
+## Author: Crackpot
+## Title: |cff1784d1ElvUI|r Mythic+ Datatext
+## Version: 1.0.0
+## Notes: Datatext for your season Mythic+ progress.
+## RequiredDeps: ElvUI
+
+Libraries\LibStub\LibStub.lua
+Libraries\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libraries\AceLocale-3.0\AceLocale-3.0.xml
+
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+
+ElvUI_MythicPlusDatatext.lua
