@@ -65,7 +65,8 @@ local labelText = {
     ["mplusKey"] = L["Mythic+ Key"],
     ["mplusKeystone"] = L["Mythic+ Keystone"],
     ["keystone"] = L["Keystone"],
-    ["key"] = L["Key"]
+    ["key"] = L["Key"],
+    ["none"] = ""
 }
 
 local dungeons = {
@@ -160,9 +161,9 @@ local function OnEnter(self)
             for _, affixInfo in ipairs(affixScores) do
                 if affixInfo.overTime then
                     if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
                     else
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
                     end
                 else
                     if affixInfo.durationSec >= SECONDS_PER_HOUR then
@@ -189,13 +190,13 @@ local function OnEvent(self, event, ...)
         C_MythicPlus_GetOwnedKeystoneChallengeMapID(),
         C_MythicPlus_GetOwnedKeystoneLevel()
     if not keystoneId or dungeons[keystoneId] == nil then
-        self.text:SetFormattedText(mpErrorString, L["Invalid Keystone"])
+        self.text:SetFormattedText(mpErrorString, L["No Keystone"])
         return
     end
     local instanceName = E.db.mplusdt.abbrevName == true and dungeons[keystoneId].abbrev or dungeons[keystoneId].name
     self.text:SetFormattedText(
         displayString,
-        labelText[E.db.mplusdt.labelText],
+        E.db.mplusdt.labelText == "none" and "" or join("", labelText[E.db.mplusdt.labelText], ": "),
         ("%s%s"):format(instanceName, E.db.mplusdt.includeLevel == true and (" %d"):format(keystoneLevel) or "")
     )
 end
@@ -240,7 +241,7 @@ local function OnClick(self, button)
 end
 
 local function ValueColorUpdate(hex, r, g, b)
-    displayString = join("", "|cffffffff%s:|r", " ", hex, "%s|r")
+    displayString = join("", "|cffffffff%s|r", hex, "%s|r")
     mpErrorString = join("", hex, "%s|r")
     currentKeyString = join("", hex, "%s|r |cffffffff%s|r")
 
@@ -307,7 +308,8 @@ local function InjectOptions()
                     ["mplusKey"] = L["Mythic+ Key"],
                     ["mplusKeystone"] = L["Mythic+ Keystone"],
                     ["keystone"] = L["Keystone"],
-                    ["key"] = L["Key"]
+                    ["key"] = L["Key"],
+                    ["none"] = L["None"],
                 }
             },
             abbrevName = {
