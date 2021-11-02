@@ -98,38 +98,11 @@ local affixes = {
     [128] = L["Tormented"]
 }
 
--- MAY be borrowed from Blizzard_ChallengesUI code
-local function GetSortedMaps()
-    local unsortedMaps = C_ChallengeMode_GetMapTable()
-    local sortedMaps = {}
-    for i = 1, #unsortedMaps do
-        local inTimeInfo, overtimeInfo = C_MythicPlus_GetSeasonBestForMap(unsortedMaps[i])
-		local level = 0
-		local dungeonScore = 0
-		if inTimeInfo and overtimeInfo then 
-			local inTimeScoreIsBetter = inTimeInfo.dungeonScore > overtimeInfo.dungeonScore
-			level = inTimeScoreIsBetter and inTimeInfo.level or overtimeInfo.level
-			dungeonScore = inTimeScoreIsBetter and inTimeInfo.dungeonScore or overtimeInfo.dungeonScore
-        elseif inTimeInfo or overtimeInfo then 
-			level = inTimeInfo and inTimeInfo.level or overtimeInfo.level
-			dungeonScore = inTimeInfo and inTimeInfo.dungeonScore or overtimeInfo.dungeonScore
-		end
-		tinsert(sortedMaps, { id = unsortedMaps[i], name = dungeons[unsortedMaps[i]].name, level = level, dungeonScore = dungeonScore})
-    end
-
-    sort(sortedMaps, function(a, b)
-        return a.dungeonScore > b.dungeonScore
-    end)
-
-    return sortedMaps
-end
-
 local function OnEnter(self)
     local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
     local currentAffixes = C_MythicPlus_GetCurrentAffixes()
     local currentScore = C_ChallengeMode_GetOverallDungeonScore()
     local color = C_ChallengeMode_GetDungeonScoreRarityColor(currentScore)
-    local sortedMaps = GetSortedMaps()
     if keystoneId == nil or dungeons[keystoneId] == nil or currentAffixes == nil or currentScore == nil then
         return
     end
