@@ -1,7 +1,7 @@
 ## Interface: 90105
 ## Author: Crackpot
 ## Title: |cff1784d1ElvUI|r Mythic+ Datatext
-## Version: 1.0.3
+## Version: 1.0.4
 ## Notes: Datatext for your season Mythic+ progress.
 ## RequiredDeps: ElvUI
 

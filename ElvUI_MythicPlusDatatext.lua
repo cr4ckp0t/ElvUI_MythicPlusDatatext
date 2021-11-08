@@ -103,14 +103,16 @@ local function OnEnter(self)
     local currentAffixes = C_MythicPlus_GetCurrentAffixes()
     local currentScore = C_ChallengeMode_GetOverallDungeonScore()
     local color = C_ChallengeMode_GetDungeonScoreRarityColor(currentScore)
-    if keystoneId == nil or dungeons[keystoneId] == nil or currentAffixes == nil or currentScore == nil then
+    if currentAffixes == nil or currentScore == nil then
         return
     end
     DT:SetupTooltip(self)
-    DT.tooltip:AddLine(L["Your Keystone"])
-    DT.tooltip:AddDoubleLine(L["Dungeon"], dungeons[keystoneId].name, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-    DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-    DT.tooltip:AddLine(" ")
+    if keystoneId ~= nil then
+        DT.tooltip:AddLine(L["Your Keystone"])
+        DT.tooltip:AddDoubleLine(L["Dungeon"], dungeons[keystoneId].name, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+        DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+        DT.tooltip:AddLine(" ")
+    end
     DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason()))
     DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
     DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
