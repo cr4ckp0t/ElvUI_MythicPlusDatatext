@@ -95,7 +95,8 @@ local affixes = {
     [122] = L["Inspiring"],
     [123] = L["Spiteful"],
     [124] = L["Storming"],
-    [128] = L["Tormented"]
+    [128] = L["Tormented"],
+    [130] = L["Encrypted"],
 }
 
 local function OnEnter(self)
@@ -118,38 +119,40 @@ local function OnEnter(self)
     DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
     DT.tooltip:AddLine(" ")
 
-    for _, map in pairs(dungeons) do
-        local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
-        local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
+    if currentScore > 0 then
+        for _, map in pairs(dungeons) do
+            local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
+            local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
 
-        if overAllScore and inTimeInfo or overTimeInfo then
-            local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
-            if not dungeonColor then
-                dungeonColor = HIGHLIGHT_FONT_COLOR
+            if overAllScore and inTimeInfo or overTimeInfo then
+                local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
+                if not dungeonColor then
+                    dungeonColor = HIGHLIGHT_FONT_COLOR
+                end
+                DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+            else
+                DT.tooltip:AddLine(map.name)
             end
-            DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-        else
-            DT.tooltip:AddLine(map.name)
-        end
-
-        if affixScores and #affixScores > 0 then
-            for _, affixInfo in ipairs(affixScores) do
-                if affixInfo.overTime then
-                    if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+        
+            if affixScores and #affixScores > 0 then
+                for _, affixInfo in ipairs(affixScores) do
+                    if affixInfo.overTime then
+                        if affixInfo.durationSec >= SECONDS_PER_HOUR then
+                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                        else
+                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                        end
                     else
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
-                    end
-                else
-                    if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, 1, 1, 1)
-                    else
-                        DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                        if affixInfo.durationSec >= SECONDS_PER_HOUR then
+                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                        else
+                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                        end
                     end
                 end
             end
+            DT.tooltip:AddLine(" ")
         end
-        DT.tooltip:AddLine(" ")
     end
 
     DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
