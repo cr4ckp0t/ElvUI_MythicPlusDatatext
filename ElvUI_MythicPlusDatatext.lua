@@ -77,7 +77,9 @@ local dungeons = {
     [379] = {id = 379, name = L["Plaguefall"], abbrev = L["PF"]},
     [380] = {id = 380, name = L["Sanguine Depths"], abbrev = L["SD"]},
     [381] = {id = 381, name = L["Spires of Ascension"], abbrev = L["SOA"]},
-    [382] = {id = 382, name = L["Theater of Pain"], abbrev = L["TOP"]}
+    [382] = {id = 382, name = L["Theater of Pain"], abbrev = L["TOP"]},
+    [391] = {id = 391, name = L["Streets of Wonder"], abbrev = L["T:SOW"]},
+    [392] = {id = 392, name = L["So'leah's Gambit"], abbrev = L["T:SG"]},
 }
 
 local affixes = {
@@ -164,9 +166,7 @@ end
 local function OnEvent(self, event, ...)
     lastPanel = self
 
-    local keystoneId, keystoneLevel =
-        C_MythicPlus_GetOwnedKeystoneChallengeMapID(),
-        C_MythicPlus_GetOwnedKeystoneLevel()
+    local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
     if not keystoneId or dungeons[keystoneId] == nil then
         self.text:SetFormattedText(mpErrorString, L["No Keystone"])
         return
