@@ -126,34 +126,36 @@ local function OnEnter(self)
             local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
             local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
 
-            if overAllScore and inTimeInfo or overTimeInfo then
-                local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
-                if not dungeonColor then
-                    dungeonColor = HIGHLIGHT_FONT_COLOR
+            if overAllScore ~= nil then
+                if overAllScore and inTimeInfo or overTimeInfo then
+                    local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
+                    if not dungeonColor then
+                        dungeonColor = HIGHLIGHT_FONT_COLOR
+                    end
+                    DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+                else
+                    DT.tooltip:AddLine(map.name)
                 end
-                DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-            else
-                DT.tooltip:AddLine(map.name)
-            end
-        
-            if affixScores and #affixScores > 0 then
-                for _, affixInfo in ipairs(affixScores) do
-                    if affixInfo.overTime then
-                        if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+            
+                if affixScores and #affixScores > 0 then
+                    for _, affixInfo in ipairs(affixScores) do
+                        if affixInfo.overTime then
+                            if affixInfo.durationSec >= SECONDS_PER_HOUR then
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                            else
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                            end
                         else
-                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
-                        end
-                    else
-                        if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, 1, 1, 1)
-                        else
-                            DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                            if affixInfo.durationSec >= SECONDS_PER_HOUR then
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                            else
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                            end
                         end
                     end
                 end
+                DT.tooltip:AddLine(" ")
             end
-            DT.tooltip:AddLine(" ")
         end
     end
 
