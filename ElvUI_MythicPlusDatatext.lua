@@ -78,8 +78,8 @@ local dungeons = {
     [380] = {id = 380, name = L["Sanguine Depths"], abbrev = L["SD"]},
     [381] = {id = 381, name = L["Spires of Ascension"], abbrev = L["SOA"]},
     [382] = {id = 382, name = L["Theater of Pain"], abbrev = L["TOP"]},
-    [391] = {id = 391, name = L["Streets of Wonder"], abbrev = L["T:SOW"]},
-    [392] = {id = 392, name = L["So'leah's Gambit"], abbrev = L["T:SG"]},
+    [391] = {id = 391, name = L["Streets of Wonder"], abbrev = L["SOW"]},
+    [392] = {id = 392, name = L["So'leah's Gambit"], abbrev = L["SG"]},
 }
 
 local affixes = {
@@ -132,9 +132,19 @@ local function OnEnter(self)
                     if not dungeonColor then
                         dungeonColor = HIGHLIGHT_FONT_COLOR
                     end
-                    DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+
+                    -- highlight the players key
+                    if E.db.mplusdt.highlightKey and map.id == keystoneId then
+                        DT.tooltip:AddDoubleLine(map.name, overAllScore, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+                    else 
+                        DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+                    end
                 else
-                    DT.tooltip:AddLine(map.name)
+                    if E.db.mplusdt.highlightKey and map.id == keystoneId then
+                        DT.tooltip:AddLine(map.name, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
+                    else
+                        DT.tooltip:AddLine(map.name)
+                    end
                 end
             
                 if affixScores and #affixScores > 0 then
@@ -220,6 +230,11 @@ local function OnClick(self, button)
     end
 end
 
+local function GetClassColor(val)
+    local class, _ = UnitClassBase("player")
+    return RAID_CLASS_COLORS[class][val]
+end
+
 local function ValueColorUpdate(hex, r, g, b)
     displayString = join("", "|cffffffff%s|r", hex, "%s|r")
     mpErrorString = join("", hex, "%s|r")
@@ -238,7 +253,13 @@ E.valueColorUpdateFuncs[ValueColorUpdate] = true
 P["mplusdt"] = {
     ["labelText"] = "key",
     ["abbrevName"] = true,
-    ["includeLevel"] = true
+    ["includeLevel"] = true,
+    ["highlightKey"] = true,
+    ["highlightColor"] = {
+        r = GetClassColor("r"),
+        g = GetClassColor("g"),
+        b = GetClassColor("b")
+    }
 }
 
 local function InjectOptions()
@@ -303,7 +324,23 @@ local function InjectOptions()
                 order = 6,
                 name = L["Include Level"],
                 desc = L["Include your keystone's level in the datatext."]
-            }
+            },
+            highlightKey = {
+                type = "toggle",
+                order = 7,
+                name = L["Highlight Your Key"],
+                desc = L["Highlight your key in the tooltip for the datatext."],
+            },
+            highlightColor = {
+                type = "color",
+                order = 8,
+                name = L["Highlight Color"],
+                desc = L["Color to highlight your key."],
+                hasAlpha = false,
+                disabled = function() return not E.db.mplusdt.highlightKey end,
+                get = function() return E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b end,
+                set = function(_, r, g, b) E.db.mplusdt.highlightColor.r = r; E.db.mplusdt.highlightColor.g = g; E.db.mplusdt.highlightColor.b = b end,
+            },
         }
     }
 end
