@@ -42,11 +42,17 @@ local C_MythicPlus_GetSeasonBestForMap = C_MythicPlus.GetSeasonBestForMap
 local C_MythicPlus_GetOwnedKeystoneChallengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID
 local C_MythicPlus_GetOwnedKeystoneLevel = C_MythicPlus.GetOwnedKeystoneLevel
 local CreateFrame = _G["CreateFrame"]
+local GetContainerItemInfo = _G["GetContainerItemInfo"]
+local GetContainerNumSlots = _G["GetContainerNumSlots"]
 local IsAddOnLoaded = _G["IsAddOnLoaded"]
 local LoadAddOn = _G["LoadAddOn"]
+local NUM_BAG_SLOTS = _G["NUM_BAG_SLOTS"]
+local select = _G["select"]
 local ToggleLFDParentFrame = _G["ToggleLFDParentFrame"]
+local UnitAura = _G["UnitAura"]
 
 local join = string.join
+local match = string.match
 local sort = table.sort
 local tinsert = _G["tinsert"]
 
@@ -59,6 +65,7 @@ local rgbColor = {
     ["b"] = 0
 }
 local lastPanel
+local timewalkingActive
 
 local labelText = {
     ["mpKey"] = L["M+ Key"],
@@ -101,6 +108,35 @@ local affixes = {
     [130] = L["Encrypted"],
 }
 
+local function IsLegionTimewalkingActive()
+    for i = 1, 40 do
+        local buffId = select(10, UnitAura("player", i))
+        if buffId == 359082 then
+            return true
+        end
+    end
+    return false
+end
+
+local function GetLegionTimewalkingKeystone()
+    if not timewalkingActive or timewalkingActive == nil then return false, false end
+    for bag = 0, NUM_BAG_SLOTS do
+        local bagSlots = GetContainerNumSlots(bag)
+        for slot = 1, bagSlots do
+            local itemLink, _, _, itemId = select(7, GetContainerItemInfo(bag, slot))
+            if itemId == 187786 then
+                -- |cffa335ee|Hkeystone:158923:251:12:10:5:13:117|h[Keystone: The Underrot (12)]|h|r
+                -- string.match("|cffa335ee|Hkeystone:158923:251:12:10:5:13:117|h[Keystone: The Underrot (12)]|h|r", "|cffa335ee|Hkeystone:%d+:%d+:%d+:%d+:%d+:%d+:%d+|h%[Keystone: (.+) %((%d+)%)%]|h|r")
+                local dungeon, level = match(itemLink, "|cffa335ee|Hkeystone:%d+:%d+:%d+:%d+:%d+:%d+:%d+|h%[Keystone: (.+) %((%d+)%)%]|h|r")
+                if dungeon and level then
+                    return dungeon, level
+                end
+            end
+        end
+    end
+    return false, false
+end
+
 local function OnEnter(self)
     local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
     local currentAffixes = C_MythicPlus_GetCurrentAffixes()
@@ -116,6 +152,17 @@ local function OnEnter(self)
         DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
         DT.tooltip:AddLine(" ")
     end
+
+    if E.db.mplusdt.includeLegion and timewalkingActive then
+        local legionKey, legionLevel = GetLegionTimewalkingKeystone()
+        if legionKey ~= false and legionLevel ~= false then
+            DT.tooltip:AddLine(L["Legion Timewalking Keystone"])
+            DT.tooltip:AddDoubleLine(L["Dungeon"], legionKey, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+            DT.tooltip:AddDoubleLine(L["Level"], legionLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+            DT.tooltip:AddLine(" ")
+        end
+    end
+
     DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason()))
     DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
     DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
@@ -189,6 +236,10 @@ local function OnEvent(self, event, ...)
         E.db.mplusdt.labelText == "none" and "" or join("", labelText[E.db.mplusdt.labelText], ": "),
         ("%s%s"):format(instanceName, E.db.mplusdt.includeLevel == true and (" %d"):format(keystoneLevel) or "")
     )
+
+    if timewalkingActive == nil then
+        timewalkingActive = IsLegionTimewalkingActive()
+    end
 end
 
 local interval = 5
@@ -254,6 +305,7 @@ P["mplusdt"] = {
     ["labelText"] = "key",
     ["abbrevName"] = true,
     ["includeLevel"] = true,
+    ["includeLegion"] = true,
     ["highlightKey"] = true,
     ["highlightColor"] = {
         r = GetClassColor("r"),
@@ -325,15 +377,22 @@ local function InjectOptions()
                 name = L["Include Level"],
                 desc = L["Include your keystone's level in the datatext."]
             },
-            highlightKey = {
+            includeLegion = {
                 type = "toggle",
                 order = 7,
+                name = L["Include Legion TW"],
+                desc = L["Include Legion Timewalking key in the tooltip"],
+                disabled = function() return not IsLegionTimewalkingActive() end,
+            },
+            highlightKey = {
+                type = "toggle",
+                order = 8,
                 name = L["Highlight Your Key"],
                 desc = L["Highlight your key in the tooltip for the datatext."],
             },
             highlightColor = {
                 type = "color",
-                order = 8,
+                order = 9,
                 name = L["Highlight Color"],
                 desc = L["Color to highlight your key."],
                 hasAlpha = false,
