@@ -77,7 +77,12 @@ local labelText = {
 }
 
 local dungeons = {
-    --[[
+    [166] = {id = 166, name = L["Grimrail Depot"], abbrev = L["GD"]},
+    [169] = {id = 169, name = L["Iron Docks"], abbrev = L["ID"]},
+    [227] = {id = 227, name = L["Lower Karazhan"], abbrev = L["LOWR"]},
+    [234] = {id = 234, name = L["Upper Karazhan"], abbrev = L["UPPR"]},
+    [369] = {id = 369, name = L["Operation Mechagon - Junkyard"], abbrev = L["YARD"]},
+    [370] = {id = 370, name = L["Operation Mechagon - Workshop"], abbrev = L["WORK"]},
     [375] = {id = 375, name = L["Mists of Tirna Scithe"], abbrev = L["MOTS"]},
     [376] = {id = 376, name = L["The Necrotic Wake"], abbrev = L["NW"]},
     [377] = {id = 377, name = L["De Other Side"], abbrev = L["DOS"]},
@@ -86,13 +91,6 @@ local dungeons = {
     [380] = {id = 380, name = L["Sanguine Depths"], abbrev = L["SD"]},
     [381] = {id = 381, name = L["Spires of Ascension"], abbrev = L["SOA"]},
     [382] = {id = 382, name = L["Theater of Pain"], abbrev = L["TOP"]},
-    --]]
-    [166] = {id = 166, name = L["Grimrail Depot"], abbrev = L["GD"]},
-    [169] = {id = 169, name = L["Iron Docks"], abbrev = L["ID"]},
-    [227] = {id = 227, name = L["Lower Karazhan"], abbrev = L["LOWR"]},
-    [234] = {id = 234, name = L["Upper Karazhan"], abbrev = L["UPPR"]},
-    [369] = {id = 369, name = L["Operation Mechagon - Junkyard"], abbrev = L["YARD"]},
-    [370] = {id = 370, name = L["Operation Mechagon - Workshop"], abbrev = L["WORK"]},
     [391] = {id = 391, name = L["Streets of Wonder"], abbrev = L["STRT"]},
     [392] = {id = 392, name = L["So'leah's Gambit"], abbrev = L["GMBT"]},
 }
