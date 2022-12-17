@@ -34,6 +34,7 @@ local EP = LibStub("LibElvUIPlugin-1.0")
 local C_ChallengeMode_GetDungeonScoreRarityColor = C_ChallengeMode.GetDungeonScoreRarityColor
 local C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor
 local C_ChallengeMode_GetMapTable = C_ChallengeMode.GetMapTable
+local C_ChallengeMode_GetMapUIInfo = C_ChallengeMode.GetMapUIInfo
 local C_ChallengeMode_GetOverallDungeonScore = C_ChallengeMode.GetOverallDungeonScore
 local C_MythicPlus_GetCurrentAffixes = C_MythicPlus.GetCurrentAffixes
 local C_MythicPlus_GetCurrentSeason = C_MythicPlus.GetCurrentSeason
@@ -51,6 +52,7 @@ local select = _G["select"]
 local ToggleLFDParentFrame = _G["ToggleLFDParentFrame"]
 local UnitAura = _G["UnitAura"]
 
+local gmatch = string.gmatch
 local join = string.join
 local match = string.match
 local sort = table.sort
@@ -67,6 +69,7 @@ local rgbColor = {
 local lastPanel
 local timewalkingActive
 
+local dungeons = {}
 local labelText = {
     ["mpKey"] = L["M+ Key"],
     ["mplusKey"] = L["Mythic+ Key"],
@@ -74,25 +77,6 @@ local labelText = {
     ["keystone"] = L["Keystone"],
     ["key"] = L["Key"],
     ["none"] = ""
-}
-
-local dungeons = {
-    [166] = {id = 166, name = L["Grimrail Depot"], abbrev = L["GD"]},
-    [169] = {id = 169, name = L["Iron Docks"], abbrev = L["ID"]},
-    [227] = {id = 227, name = L["Lower Karazhan"], abbrev = L["LOWR"]},
-    [234] = {id = 234, name = L["Upper Karazhan"], abbrev = L["UPPR"]},
-    [369] = {id = 369, name = L["Operation Mechagon - Junkyard"], abbrev = L["YARD"]},
-    [370] = {id = 370, name = L["Operation Mechagon - Workshop"], abbrev = L["WORK"]},
-    [375] = {id = 375, name = L["Mists of Tirna Scithe"], abbrev = L["MOTS"]},
-    [376] = {id = 376, name = L["The Necrotic Wake"], abbrev = L["NW"]},
-    [377] = {id = 377, name = L["De Other Side"], abbrev = L["DOS"]},
-    [378] = {id = 378, name = L["Halls of Atonement"], abbrev = L["HOA"]},
-    [379] = {id = 379, name = L["Plaguefall"], abbrev = L["PF"]},
-    [380] = {id = 380, name = L["Sanguine Depths"], abbrev = L["SD"]},
-    [381] = {id = 381, name = L["Spires of Ascension"], abbrev = L["SOA"]},
-    [382] = {id = 382, name = L["Theater of Pain"], abbrev = L["TOP"]},
-    [391] = {id = 391, name = L["Streets of Wonder"], abbrev = L["STRT"]},
-    [392] = {id = 392, name = L["So'leah's Gambit"], abbrev = L["GMBT"]},
 }
 
 local affixes = {
@@ -111,8 +95,10 @@ local affixes = {
     [123] = L["Spiteful"],
     [124] = L["Storming"],
     [128] = L["Tormented"],
+    [129] = L["Infernal"],
     [130] = L["Encrypted"],
     [131] = L["Shrouded"],
+    [132] = L["Thundering"],
 }
 
 local function IsLegionTimewalkingActive()
@@ -144,6 +130,23 @@ local function GetLegionTimewalkingKeystone()
     return false, false
 end
 
+local function GetKeystoneDungeonAbbreviation(mapName)
+    local abbrev = ""
+    for match in gmatch(mapName, "%S+") do
+        abbrev = ("%s%s"):format(abbrev, (mapName:find("of the") ~= nil and (match == "of" or match == "the")) and "" or match:sub(1, 1):upper())
+    end
+
+    return abbrev
+end
+
+local function GetKeystoneDungeonList()
+    local maps = C_ChallengeMode_GetMapTable()
+    for i = 1, #maps do
+        local mapName, _, _, _ = C_ChallengeMode_GetMapUIInfo(maps[i])
+        dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = GetKeystoneDungeonAbbreviation(mapName) }
+    end
+end
+
 local function OnEnter(self)
     local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
     local currentAffixes = C_MythicPlus_GetCurrentAffixes()
@@ -152,7 +155,9 @@ local function OnEnter(self)
     if currentAffixes == nil or currentScore == nil then
         return
     end
+
     DT:SetupTooltip(self)
+
     if keystoneId ~= nil then
         DT.tooltip:AddLine(L["Your Keystone"])
         DT.tooltip:AddDoubleLine(L["Dungeon"], dungeons[keystoneId].name, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
@@ -170,7 +175,7 @@ local function OnEnter(self)
         end
     end
 
-    DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason()))
+    DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason() - 8))
     DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
     DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
     DT.tooltip:AddLine(" ")
@@ -229,8 +234,12 @@ local function OnEnter(self)
     DT.tooltip:Show()
 end
 
-local function OnEvent(self, event, ...)
+local function OnEvent(self)
     lastPanel = self
+
+    if #dungeons == 0 then
+        GetKeystoneDungeonList()
+    end
 
     local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
     if not keystoneId or dungeons[keystoneId] == nil then
@@ -412,14 +421,4 @@ local function InjectOptions()
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext(
-    "Mythic+",
-    nil,
-    {"PLAYER_ENTERING_WORLD", "MYTHIC_PLUS_NEW_SEASON_RECORD", "MYTHIC_PLUS_NEW_WEEKLY_RECORD"},
-    OnEvent,
-    OnUpdate,
-    OnClick,
-    OnEnter,
-    nil,
-    L["Mythic+"]
-)
+DT:RegisterDatatext("Mythic+", nil, {"PLAYER_ENTERING_WORLD", MYTHIC_PLUS_CURRENT_AFFIX_UPDATE, "MYTHIC_PLUS_NEW_WEEKLY_RECORD"}, OnEvent, OnUpdate,  OnClick,  OnEnter, nil, L["Mythic+"])
