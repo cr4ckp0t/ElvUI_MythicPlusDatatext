@@ -70,6 +70,16 @@ local lastPanel
 local timewalkingActive
 
 local dungeons = {}
+local timerData = {
+    [2] = { 1080, 1440, 1800 }, -- Temple of the Jade Serpent
+    [165] = { 1188, 1584, 1980 }, -- Shadowmoon Buriel Grounds
+    [200] = { 1368, 1824, 2280 }, -- Halls of Valor
+    [210] = { 1080, 1440, 1800 }, -- Court of Stars
+    [401] = { 1224, 1632, 2040 }, -- The Azure Vault
+    [400] = { 1440, 1920, 2400 }, -- The Nokhud Offensive
+    [402] = { 1152, 1536, 1920 }, -- Algeth'ar Academy
+    [399] = { 1080, 1440, 1800 }, -- Ruby Life Pools
+}
 local labelText = {
     ["mpKey"] = L["M+ Key"],
     ["mplusKey"] = L["Mythic+ Key"],
@@ -143,7 +153,19 @@ local function GetKeystoneDungeonList()
     local maps = C_ChallengeMode_GetMapTable()
     for i = 1, #maps do
         local mapName, _, _, _ = C_ChallengeMode_GetMapUIInfo(maps[i])
-        dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = GetKeystoneDungeonAbbreviation(mapName) }
+        dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = GetKeystoneDungeonAbbreviation(mapName), timerData = timerData[maps[i]] }
+    end
+end
+
+local function GetPlusString(duration, timers)
+    if duration <= timers[1] then
+        return "+++"
+    elseif duration <= timers[2] and duration > timers[1] then
+        return "++"
+    elseif duration <= timers[3] and duration > timers[2] then
+        return "+"
+    else
+        return ""
     end
 end
 
@@ -210,15 +232,15 @@ local function OnEnter(self)
                     for _, affixInfo in ipairs(affixScores) do
                         if affixInfo.overTime then
                             if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%s%d)"):format(SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfoaffixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
                             else
-                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%s%d)"):format(SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b, LIGHTGRAY_FONT_COLOR.r, LIGHTGRAY_FONT_COLOR.g, LIGHTGRAY_FONT_COLOR.b)
                             end
                         else
                             if affixInfo.durationSec >= SECONDS_PER_HOUR then
-                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, true), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%s%d)"):format(SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), 1, 1, 1, 1, 1, 1)
                             else
-                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%d)"):format(SecondsToClock(affixInfo.durationSec, false), affixInfo.level), 1, 1, 1, 1, 1, 1)
+                                DT.tooltip:AddDoubleLine(affixInfo.name, ("%s (%s%d)"):format(SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), 1, 1, 1, 1, 1, 1)
                             end
                         end
                     end
