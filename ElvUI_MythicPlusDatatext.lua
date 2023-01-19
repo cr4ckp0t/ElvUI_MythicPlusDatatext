@@ -256,8 +256,6 @@ local function OnEnter(self)
 end
 
 local function OnEvent(self)
-    lastPanel = self
-
     if #dungeons == 0 then
         GetKeystoneDungeonList()
     end
@@ -334,7 +332,6 @@ local function ValueColorUpdate(self, hex, r, g, b)
 
     OnEvent(self)
 end
-E.valueColorUpdateFuncs[ValueColorUpdate] = true
 
 P["mplusdt"] = {
     ["labelText"] = "key",
