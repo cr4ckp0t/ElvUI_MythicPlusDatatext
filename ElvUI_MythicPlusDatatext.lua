@@ -66,7 +66,6 @@ local rgbColor = {
     ["g"] = 0,
     ["b"] = 0
 }
-local lastPanel
 local timewalkingActive
 
 local dungeons = {}
@@ -324,7 +323,7 @@ local function GetClassColor(val)
     return RAID_CLASS_COLORS[class][val]
 end
 
-local function ValueColorUpdate(hex, r, g, b)
+local function ValueColorUpdate(self, hex, r, g, b)
     displayString = join("", "|cffffffff%s|r", hex, "%s|r")
     mpErrorString = join("", hex, "%s|r")
     currentKeyString = join("", hex, "%s|r |cffffffff%s|r")
@@ -333,9 +332,7 @@ local function ValueColorUpdate(hex, r, g, b)
     rgbColor.g = g
     rgbColor.b = b
 
-    if lastPanel ~= nil then
-        OnEvent(lastPanel, "ELVUI_COLOR_UPDATE")
-    end
+    OnEvent(self)
 end
 E.valueColorUpdateFuncs[ValueColorUpdate] = true
 
@@ -443,4 +440,4 @@ local function InjectOptions()
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext("Mythic+", nil, {"PLAYER_ENTERING_WORLD", "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE", "MYTHIC_PLUS_NEW_WEEKLY_RECORD"}, OnEvent, OnUpdate,  OnClick,  OnEnter, nil, L["Mythic+"])
+DT:RegisterDatatext("Mythic+", nil, {"PLAYER_ENTERING_WORLD", "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE", "MYTHIC_PLUS_NEW_WEEKLY_RECORD"}, OnEvent, OnUpdate,  OnClick,  OnEnter, nil, L["Mythic+"], nil, ValueColorUpdate)
