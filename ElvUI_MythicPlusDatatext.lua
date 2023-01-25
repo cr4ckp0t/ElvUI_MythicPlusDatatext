@@ -110,7 +110,7 @@ local affixes = {
     [132] = L["Thundering"],
 }
 
-local function IsLegionTimewalkingActive()
+--[[local function IsLegionTimewalkingActive()
     for i = 1, 40 do
         local buffId = select(10, UnitAura("player", i))
         if buffId == 359082 then
@@ -119,6 +119,7 @@ local function IsLegionTimewalkingActive()
     end
     return false
 end
+
 
 local function GetLegionTimewalkingKeystone()
     if not timewalkingActive or timewalkingActive == nil then return false, false end
@@ -137,7 +138,7 @@ local function GetLegionTimewalkingKeystone()
         end
     end
     return false, false
-end
+end]]
 
 local function GetKeystoneDungeonAbbreviation(mapName)
     local abbrev = ""
@@ -186,7 +187,7 @@ local function OnEnter(self)
         DT.tooltip:AddLine(" ")
     end
 
-    if E.db.mplusdt.includeLegion and timewalkingActive then
+    --[[if E.db.mplusdt.includeLegion and timewalkingActive then
         local legionKey, legionLevel = GetLegionTimewalkingKeystone()
         if legionKey ~= false and legionLevel ~= false then
             DT.tooltip:AddLine(L["Legion Timewalking Keystone"])
@@ -194,7 +195,7 @@ local function OnEnter(self)
             DT.tooltip:AddDoubleLine(L["Level"], legionLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
             DT.tooltip:AddLine(" ")
         end
-    end
+    end]]
 
     DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason() - 8))
     DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
