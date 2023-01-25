@@ -66,7 +66,7 @@ local rgbColor = {
     ["g"] = 0,
     ["b"] = 0
 }
-local timewalkingActive
+--local timewalkingActive
 
 local dungeons = {}
 local timerData = {
@@ -273,9 +273,9 @@ local function OnEvent(self)
         ("%s%s"):format(instanceName, E.db.mplusdt.includeLevel == true and (" %d"):format(keystoneLevel) or "")
     )
 
-    if timewalkingActive == nil then
+    --[[if timewalkingActive == nil then
         timewalkingActive = IsLegionTimewalkingActive()
-    end
+    end]]
 end
 
 local interval = 5
@@ -338,7 +338,7 @@ P["mplusdt"] = {
     ["labelText"] = "key",
     ["abbrevName"] = true,
     ["includeLevel"] = true,
-    ["includeLegion"] = true,
+    --["includeLegion"] = true,
     ["highlightKey"] = true,
     ["highlightColor"] = {
         r = GetClassColor("r"),
@@ -410,13 +410,13 @@ local function InjectOptions()
                 name = L["Include Level"],
                 desc = L["Include your keystone's level in the datatext."]
             },
-            includeLegion = {
+            --[[includeLegion = {
                 type = "toggle",
                 order = 7,
                 name = L["Include Legion TW"],
                 desc = L["Include Legion Timewalking key in the tooltip"],
                 disabled = function() return not IsLegionTimewalkingActive() end,
-            },
+            },]]
             highlightKey = {
                 type = "toggle",
                 order = 8,
