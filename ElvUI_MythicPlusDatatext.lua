@@ -47,12 +47,15 @@ local C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor = C_ChallengeMod
 local C_ChallengeMode_GetMapTable = C_ChallengeMode.GetMapTable
 local C_ChallengeMode_GetMapUIInfo = C_ChallengeMode.GetMapUIInfo
 local C_ChallengeMode_GetOverallDungeonScore = C_ChallengeMode.GetOverallDungeonScore
+
+local C_MythicPlus_RequestCurrentAffixes = C_MythicPlus.RequestCurrentAffixes
 local C_MythicPlus_GetCurrentAffixes = C_MythicPlus.GetCurrentAffixes
 local C_MythicPlus_GetCurrentSeason = C_MythicPlus.GetCurrentSeason
 local C_MythicPlus_GetSeasonBestAffixScoreInfoForMap = C_MythicPlus.GetSeasonBestAffixScoreInfoForMap
 local C_MythicPlus_GetSeasonBestForMap = C_MythicPlus.GetSeasonBestForMap
 local C_MythicPlus_GetOwnedKeystoneChallengeMapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID
 local C_MythicPlus_GetOwnedKeystoneLevel = C_MythicPlus.GetOwnedKeystoneLevel
+
 local SecondsToClock = SecondsToClock
 
 local CreateFrame = CreateFrame
@@ -83,6 +86,7 @@ local timerData = {
 	[402] = { 1152, 1536, 1920 }, -- Algeth'ar Academy
 	[399] = { 1080, 1440, 1800 }, -- Ruby Life Pools
 }
+
 local labelText = {
 	mpKey = L["M+ Key"],
 	mplusKey = L["Mythic+ Key"],
@@ -182,7 +186,7 @@ local function OnEnter(self)
 		return
 	end
 
-	DT:SetupTooltip(self)
+	DT.tooltip:ClearLines()
 
 	if keystoneId ~= nil then
 		DT.tooltip:AddLine(L["Your Keystone"])
@@ -255,7 +259,11 @@ local function OnEnter(self)
 	DT.tooltip:Show()
 end
 
-local function OnEvent(self)
+local function OnEvent(self, event)
+	if event == 'ELVUI_FORCE_UPDATE' then
+		C_MythicPlus_RequestCurrentAffixes()
+	end
+
 	if #dungeons == 0 then
 		GetKeystoneDungeonList()
 	end
@@ -435,4 +443,4 @@ local function InjectOptions()
 end
 
 EP:RegisterPlugin(..., InjectOptions)
-DT:RegisterDatatext("Mythic+", nil, {"PLAYER_ENTERING_WORLD", "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE", "MYTHIC_PLUS_NEW_WEEKLY_RECORD"}, OnEvent, OnUpdate,  OnClick,  OnEnter, nil, L["Mythic+"], nil, ValueColorUpdate)
+DT:RegisterDatatext("Mythic+", L["Plugins by |cff0070deCrackpotx|r"], {"PLAYER_ENTERING_WORLD", "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE", "MYTHIC_PLUS_NEW_WEEKLY_RECORD"}, OnEvent, OnUpdate,  OnClick,  OnEnter, nil, L["Mythic+"], nil, ValueColorUpdate)
