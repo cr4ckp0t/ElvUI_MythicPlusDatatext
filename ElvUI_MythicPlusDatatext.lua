@@ -1,31 +1,6 @@
 -------------------------------------------------------------------------------
 -- ElvUI Mythic+ Datatext By Crackpotx
 -------------------------------------------------------------------------------
---[[
-
-MIT License
-
-Copyright (c) 2022 Adam Koch
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
---]]
 local E, _, V, P, G = unpack(ElvUI)
 local DT = E:GetModule("DataTexts")
 local L = E.Libs.ACL:GetLocale("ElvUI_MythicPlusDatatext", false)
@@ -70,7 +45,6 @@ local displayString = ""
 local currentKeyString = ""
 local mpErrorString = ""
 local rgbColor = { r = 0, g = 0, b = 0 }
---local timewalkingActive
 
 local dungeons = {}
 local timerData = {
@@ -113,36 +87,6 @@ local affixes = {
 	[131] = L["Shrouded"],
 	[132] = L["Thundering"],
 }
-
---[[local function IsLegionTimewalkingActive()
-	for i = 1, 40 do
-		local buffId = select(10, UnitAura("player", i))
-		if buffId == 359082 then
-			return true
-		end
-	end
-	return false
-end
-
-
-local function GetLegionTimewalkingKeystone()
-	if not timewalkingActive or timewalkingActive == nil then return false, false end
-	for bag = 0, NUM_BAG_SLOTS do
-		local bagSlots = GetContainerNumSlots(bag)
-		for slot = 1, bagSlots do
-			local itemLink, _, _, itemId = select(7, GetContainerItemInfo(bag, slot))
-			if itemId == 187786 then
-				-- |cffa335ee|Hkeystone:158923:251:12:10:5:13:117|h[Keystone: The Underrot (12)]|h|r
-				-- string.match("|cffa335ee|Hkeystone:158923:251:12:10:5:13:117|h[Keystone: The Underrot (12)]|h|r", "|cffa335ee|Hkeystone:%d+:%d+:%d+:%d+:%d+:%d+:%d+|h%[Keystone: (.+) %((%d+)%)%]|h|r")
-				local dungeon, level = match(itemLink, "|cffa335ee|Hkeystone:%d+:%d+:%d+:%d+:%d+:%d+:%d+|h%[Keystone: (.+) %((%d+)%)%]|h|r")
-				if dungeon and level then
-					return dungeon, level
-				end
-			end
-		end
-	end
-	return false, false
-end]]
 
 local function GetKeystoneDungeonAbbreviation(mapName)
 	local abbrev = ""
@@ -190,16 +134,6 @@ local function OnEnter(self)
 		DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 		DT.tooltip:AddLine(" ")
 	end
-
-	--[[if E.db.mplusdt.includeLegion and timewalkingActive then
-		local legionKey, legionLevel = GetLegionTimewalkingKeystone()
-		if legionKey ~= false and legionLevel ~= false then
-			DT.tooltip:AddLine(L["Legion Timewalking Keystone"])
-			DT.tooltip:AddDoubleLine(L["Dungeon"], legionKey, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-			DT.tooltip:AddDoubleLine(L["Level"], legionLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-			DT.tooltip:AddLine(" ")
-		end
-	end]]
 
 	DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason() - 8))
 	DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
@@ -271,10 +205,6 @@ local function OnEvent(self)
 		E.db.mplusdt.labelText == "none" and "" or strjoin("", labelText[E.db.mplusdt.labelText], ": "),
 		format("%s%s", instanceName, E.db.mplusdt.includeLevel == true and format(" %d", keystoneLevel) or "")
 	)
-
-	--[[if timewalkingActive == nil then
-		timewalkingActive = IsLegionTimewalkingActive()
-	end]]
 end
 
 local interval = 5

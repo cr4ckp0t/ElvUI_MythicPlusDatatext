@@ -1,7 +1,7 @@
 ## Interface: 100005
 ## Author: Crackpot
 ## Title: |cff1784d1ElvUI|r Mythic+ Datatext
-## Version: 1.4.5
+## Version: 1.5.0
 ## Notes: Datatext for your season Mythic+ progress.
 ## RequiredDeps: ElvUI
 
@@ -18,5 +18,3 @@ Locales\zhCN.lua
 Locales\zhTW.lua
 
 ElvUI_MythicPlusDatatext.lua
-
-
