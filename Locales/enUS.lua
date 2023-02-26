@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------
--- ElvUI_MythicPlusDatatext By Crackpot (US, Arthas)
+-- ElvUI_MythicPlusDatatext By Crackpot (US, Illidan)
 -------------------------------------------------------------------------------
 local L = ElvUI[1].Libs.ACL:NewLocale("ElvUI_MythicPlusDatatext", "enUS", true, true)
 if not L then return end

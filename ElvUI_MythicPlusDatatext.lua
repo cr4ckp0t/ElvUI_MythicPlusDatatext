@@ -62,6 +62,7 @@ local timerData = {
 }
 
 local labelText = {
+	mPlus = L["M+"],
 	mpKey = L["M+ Key"],
 	mplusKey = L["Mythic+ Key"],
 	mplusKeystone = L["Mythic+ Keystone"],
@@ -273,7 +274,6 @@ P["mplusdt"] = {
 	["labelText"] = "key",
 	["abbrevName"] = true,
 	["includeLevel"] = true,
-	--["includeLegion"] = true,
 	["highlightKey"] = true,
 	["highlightColor"] = {
 		r = GetClassColor("r"),
@@ -325,6 +325,7 @@ local function InjectOptions()
 				name = L["Datatext Label"],
 				desc = L["Choose how to label the datatext."],
 				values = {
+					["mPlus"] = L["M+"],
 					["mpKey"] = L["M+ Key"],
 					["mplusKey"] = L["Mythic+ Key"],
 					["mplusKeystone"] = L["Mythic+ Keystone"],
@@ -345,13 +346,6 @@ local function InjectOptions()
 				name = L["Include Level"],
 				desc = L["Include your keystone's level in the datatext."]
 			},
-			--[[includeLegion = {
-				type = "toggle",
-				order = 7,
-				name = L["Include Legion TW"],
-				desc = L["Include Legion Timewalking key in the tooltip"],
-				disabled = function() return not IsLegionTimewalkingActive() end,
-			},]]
 			highlightKey = {
 				type = "toggle",
 				order = 8,
