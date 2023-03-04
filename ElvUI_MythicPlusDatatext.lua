@@ -5,6 +5,7 @@ local E, _, V, P, G = unpack(ElvUI)
 local DT = E:GetModule("DataTexts")
 local L = E.Libs.ACL:GetLocale("ElvUI_MythicPlusDatatext", false)
 local EP = E.Libs.EP
+local ACH = E.Libs.ACH
 
 local select = select
 local gmatch = gmatch
@@ -180,7 +181,7 @@ local function OnEnter(self)
 
 						-- add an exclamation graphic to what this week's main affix (fort or tyran)
 						local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
-						
+
 						if affixInfo.overTime then r, g, b = .6, .6, .6 end
 						if affixInfo.durationSec >= SECONDS_PER_HOUR then
 							DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
@@ -291,86 +292,18 @@ P["mplusdt"] = {
 
 local function InjectOptions()
 	if not E.Options.args.Crackpotx then
-		E.Options.args.Crackpotx = {
-			type = "group",
-			order = -2,
-			name = L["Plugins by |cff0070deCrackpotx|r"],
-			args = {
-				thanks = {
-					type = "description",
-					order = 1,
-					name = L[
-						"Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."
-					]
-				}
-			}
-		}
-	elseif not E.Options.args.Crackpotx.args.thanks then
-		E.Options.args.Crackpotx.args.thanks = {
-			type = "description",
-			order = 1,
-			name = L[
-				"Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."
-			]
-		}
+		E.Options.args.Crackpotx = ACH:Group(L["Plugins by |cff0070deCrackpotx|r"])
+	end
+	if not E.Options.args.Crackpotx.args.thanks then
+		E.Options.args.Crackpotx.args.thanks = ACH:Description(L["Thanks for using and supporting my work!  -- |cff0070deCrackpotx|r\n\n|cffff0000If you find any bugs, or have any suggestions for any of my addons, please open a ticket at that particular addon's page on CurseForge."], 1)
 	end
 
-	E.Options.args.Crackpotx.args.mplusdt = {
-		type = "group",
-		name = L["Mythic+ Datatext"],
-		get = function(info)
-			return E.db.mplusdt[info[#info]]
-		end,
-		set = function(info, value)
-			E.db.mplusdt[info[#info]] = value
-			DT:LoadDataTexts()
-		end,
-		args = {
-			labelText = {
-				type = "select",
-				order = 4,
-				name = L["Datatext Label"],
-				desc = L["Choose how to label the datatext."],
-				values = {
-					["mPlus"] = L["M+"],
-					["mpKey"] = L["M+ Key"],
-					["mplusKey"] = L["Mythic+ Key"],
-					["mplusKeystone"] = L["Mythic+ Keystone"],
-					["keystone"] = L["Keystone"],
-					["key"] = L["Key"],
-					["none"] = L["None"],
-				}
-			},
-			abbrevName = {
-				type = "toggle",
-				order = 5,
-				name = L["Abbreviate Instance Name"],
-				desc = L["Abbreviate instance name in the datatext."]
-			},
-			includeLevel = {
-				type = "toggle",
-				order = 6,
-				name = L["Include Level"],
-				desc = L["Include your keystone's level in the datatext."]
-			},
-			highlightKey = {
-				type = "toggle",
-				order = 8,
-				name = L["Highlight Your Key"],
-				desc = L["Highlight your key in the tooltip for the datatext."],
-			},
-			highlightColor = {
-				type = "color",
-				order = 9,
-				name = L["Highlight Color"],
-				desc = L["Color to highlight your key."],
-				hasAlpha = false,
-				disabled = function() return not E.db.mplusdt.highlightKey end,
-				get = function() return E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b end,
-				set = function(_, r, g, b) E.db.mplusdt.highlightColor.r = r; E.db.mplusdt.highlightColor.g = g; E.db.mplusdt.highlightColor.b = b end,
-			},
-		}
-	}
+	E.Options.args.Crackpotx.args.mplusdt = ACH:Group(L["Mythic+ Datatext"], nil, nil, nil, function(info) return E.db.mplusdt[info[#info]] end, function(info, value) E.db.mplusdt[info[#info]] = value; DT:ForceUpdate_DataText("Mythic+") end)
+	E.Options.args.Crackpotx.args.mplusdt.args.labelText = ACH:Select(L["Datatext Label"], L["Choose how to label the datatext."], 1, { ["mPlus"] = L["M+"], ["mpKey"] = L["M+ Key"], ["mplusKey"] = L["Mythic+ Key"], ["mplusKeystone"] = L["Mythic+ Keystone"], ["keystone"] = L["Keystone"], ["key"] = L["Key"], ["none"] = L["None"] })
+	E.Options.args.Crackpotx.args.mplusdt.args.abbrevName = ACH:Toggle(L["Abbreviate Instance Name"], L["Abbreviate instance name in the datatext."], 2)
+	E.Options.args.Crackpotx.args.mplusdt.args.includeLevel = ACH:Toggle(L["Include Level"], L["Include your keystone's level in the datatext."], 3)
+	E.Options.args.Crackpotx.args.mplusdt.args.highlightKey = ACH:Toggle(L["Highlight Your Key"], L["Highlight your key in the tooltip for the datatext."], 4)
+	E.Options.args.Crackpotx.args.mplusdt.args.highlightColor = ACH:Color(L["Highlight Color"], L["Color to highlight your key."], 5, false, nil, function() return E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b end, function(_, r, g, b) E.db.mplusdt.highlightColor.r = r; E.db.mplusdt.highlightColor.g = g; E.db.mplusdt.highlightColor.b = b end, function() return not E.db.mplusdt.highlightKey end)
 end
 
 EP:RegisterPlugin(..., InjectOptions)
