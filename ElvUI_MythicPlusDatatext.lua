@@ -16,6 +16,7 @@ local strsub = strsub
 local strfind = strfind
 local sort = sort
 local tinsert = tinsert
+local tsort = table.sort
 
 local C_ChallengeMode_GetDungeonScoreRarityColor = C_ChallengeMode.GetDungeonScoreRarityColor
 local C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor
@@ -172,13 +173,19 @@ local function OnEnter(self)
 				end
 
 				if affixScores and #affixScores > 0 then
+					-- sort fortified before tyrannical
+					tsort(affixScores, function(x, y) return x.name < y.name end)
 					for _, affixInfo in ipairs(affixScores) do
 						local r, g, b = 1, 1, 1
+
+						-- add an exclamation graphic to what this week's main affix (fort or tyran)
+						local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
+						
 						if affixInfo.overTime then r, g, b = .6, .6, .6 end
 						if affixInfo.durationSec >= SECONDS_PER_HOUR then
-							DT.tooltip:AddDoubleLine(affixInfo.name, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+							DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 						else
-							DT.tooltip:AddDoubleLine(affixInfo.name, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+							DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 						end
 					end
 				end
