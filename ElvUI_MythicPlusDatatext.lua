@@ -74,8 +74,11 @@ local labelText = {
 }
 
 local affixes = {
+	[1] = L["Overflowing"],
+	[2] = L["Skittish"],
 	[3] = L["Volcanic"],
 	[4] = L["Necrotic"],
+	[5] = L["Teeming"],
 	[6] = L["Raging"],
 	[7] = L["Bolstering"],
 	[8] = L["Sanguine"],
@@ -85,6 +88,11 @@ local affixes = {
 	[12] = L["Grievous"],
 	[13] = L["Explosive"],
 	[14] = L["Quaking"],
+	[16] = L["Infested"],
+	[117] = L["Reaping"],
+	[119] = L["Beguiling"],
+	[120] = L["Awakened"],
+	[121] = L["Prideful"],
 	[122] = L["Inspiring"],
 	[123] = L["Spiteful"],
 	[124] = L["Storming"],
@@ -93,6 +101,10 @@ local affixes = {
 	[130] = L["Encrypted"],
 	[131] = L["Shrouded"],
 	[132] = L["Thundering"],
+	[134] = L["Entangling"],
+	[135] = L["Afflicted"],
+	[136] = L["Incorporeal"],
+	[137] = L["Shielding"],
 }
 
 local function GetKeystoneDungeonAbbreviation(mapName)
@@ -144,7 +156,7 @@ local function OnEnter(self)
 
 	DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason() - 8))
 	DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
-	DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+	DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 	DT.tooltip:AddLine(" ")
 
 	if currentScore > 0 then
