@@ -53,14 +53,25 @@ local rgbColor = { r = 0, g = 0, b = 0 }
 
 local dungeons = {}
 local timerData = {
-	[2] = { 1080, 1440, 1800 }, -- Temple of the Jade Serpent
-	[165] = { 1188, 1584, 1980 }, -- Shadowmoon Buriel Grounds
-	[200] = { 1368, 1824, 2280 }, -- Halls of Valor
-	[210] = { 1080, 1440, 1800 }, -- Court of Stars
-	[401] = { 1224, 1632, 2040 }, -- The Azure Vault
-	[400] = { 1440, 1920, 2400 }, -- The Nokhud Offensive
-	[402] = { 1152, 1536, 1920 }, -- Algeth'ar Academy
-	[399] = { 1080, 1440, 1800 }, -- Ruby Life Pools
+	[206] = { 1188, 1584, 1980 }, -- Neltharion's Lair
+	[245] = { 1116, 1488, 1860 }, -- Freehold
+	[251] = { 1152, 1536, 1920 }, -- The Underrot
+	[403] = { 1368, 1824, 2280 }, -- Uldaman: Legacy of Tyr
+	[404] = { 1188, 1584, 1980 }, -- Neltharus
+	[405] = { 1260, 1680, 2100 }, -- Brackenhide Hollow
+	[406] = { 1260, 1680, 2100 }, -- Halls of Infusion
+	[438] = { 1080, 1440, 1800 }, -- The Vortex Pinnacle
+}
+
+local abbrevs = {
+	[206] = L["NL"],
+	[245] = L["FH"],
+	[251] = L["UNDR"],
+	[403] = L["ULD"],
+	[404] = L["NELT"],
+	[405] = L["BH"],
+	[406] = L["HOI"],
+	[438] = L["VP"],
 }
 
 local labelText = {
@@ -107,20 +118,21 @@ local affixes = {
 	[137] = L["Shielding"],
 }
 
-local function GetKeystoneDungeonAbbreviation(mapName)
+--[[local function GetKeystoneDungeonAbbreviation(mapName)
+
 	local abbrev = ""
 	for match in gmatch(mapName, "%S+") do
 		abbrev = format("%s%s", abbrev, (strfind(mapName, "of the") ~= nil and (match == "of" or match == "the")) and "" or strupper(strsub(match, 1, 1)))
 	end
 
 	return abbrev
-end
+end]]
 
 local function GetKeystoneDungeonList()
 	local maps = C_ChallengeMode_GetMapTable()
 	for i = 1, #maps do
 		local mapName, _, _, _ = C_ChallengeMode_GetMapUIInfo(maps[i])
-		dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = GetKeystoneDungeonAbbreviation(mapName), timerData = timerData[maps[i]] }
+		dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]] }
 	end
 end
 
