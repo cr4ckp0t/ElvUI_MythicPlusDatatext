@@ -54,9 +54,9 @@ local rgbColor = { r = 0, g = 0, b = 0 }
 local dungeons = {}
 local timerData = {
 	[206] = { 1188, 1584, 1980 }, -- Neltharion's Lair
-	[245] = { 1116, 1488, 1860 }, -- Freehold
-	[251] = { 1152, 1536, 1920 }, -- The Underrot
-	[403] = { 1368, 1824, 2280 }, -- Uldaman: Legacy of Tyr
+	[245] = { 1080, 1440, 1800 }, -- Freehold
+	[251] = { 1080, 1440, 1800 }, -- The Underrot
+	[403] = { 1260, 1680, 2100 }, -- Uldaman: Legacy of Tyr
 	[404] = { 1188, 1584, 1980 }, -- Neltharus
 	[405] = { 1260, 1680, 2100 }, -- Brackenhide Hollow
 	[406] = { 1260, 1680, 2100 }, -- Halls of Infusion
