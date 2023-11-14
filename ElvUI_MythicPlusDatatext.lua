@@ -53,25 +53,25 @@ local rgbColor = { r = 0, g = 0, b = 0 }
 
 local dungeons = {}
 local timerData = {
-	[206] = { 1188, 1584, 1980 }, -- Neltharion's Lair
-	[245] = { 1080, 1440, 1800 }, -- Freehold
-	[251] = { 1080, 1440, 1800 }, -- The Underrot
-	[403] = { 1260, 1680, 2100 }, -- Uldaman: Legacy of Tyr
-	[404] = { 1188, 1584, 1980 }, -- Neltharus
-	[405] = { 1260, 1680, 2100 }, -- Brackenhide Hollow
-	[406] = { 1260, 1680, 2100 }, -- Halls of Infusion
-	[438] = { 1080, 1440, 1800 }, -- The Vortex Pinnacle
+	[168] = { 1224, 1632, 2040 }, -- The Everbloom
+	[198] = { 1260, 1680, 2100 }, -- Darkheart Thicket
+	[199] = { 1080, 1440, 1800 }, -- Black Rock Hold
+	[244] = { 1320, 1760, 2200 }, -- Atal'Dazar
+	[248] = { 1404, 1728, 2160 }, -- Waycrest Manor
+	[456] = { 1080, 1440, 1800 }, -- Throne of the Tides
+	[463] = { 1188, 1584, 1980 }, -- Dawn of the Infinite: Galakrond's Fall
+	[464] = { 1224, 1632, 2040 }, -- Dawn of the Infinite: Murozond's Rise
 }
 
 local abbrevs = {
-	[206] = L["NL"],
-	[245] = L["FH"],
-	[251] = L["UNDR"],
-	[403] = L["ULD"],
-	[404] = L["NELT"],
-	[405] = L["BH"],
-	[406] = L["HOI"],
-	[438] = L["VP"],
+	[168] = L["EB"], -- The Everbloom
+	[198] = L["DHT"], -- Darkheart Thicket
+	[199] = L["BRH"], -- Black Rock Hold
+	[244] = L["AD"], -- Atal'Dazar
+	[248] = L["WM"], -- Waycrest Manor
+	[456] = L["TotT"], -- Throne of the Tides
+	[463] = L["DOTI:GR"], -- Dawn of the Infinite: Galakrond's Fall
+	[464] = L["DOTI:MR"], -- Dawn of the Infinite: Murozond's Rise
 }
 
 local labelText = {
@@ -117,16 +117,6 @@ local affixes = {
 	[136] = L["Incorporeal"],
 	[137] = L["Shielding"],
 }
-
---[[local function GetKeystoneDungeonAbbreviation(mapName)
-
-	local abbrev = ""
-	for match in gmatch(mapName, "%S+") do
-		abbrev = format("%s%s", abbrev, (strfind(mapName, "of the") ~= nil and (match == "of" or match == "the")) and "" or strupper(strsub(match, 1, 1)))
-	end
-
-	return abbrev
-end]]
 
 local function GetKeystoneDungeonList()
 	local maps = C_ChallengeMode_GetMapTable()
