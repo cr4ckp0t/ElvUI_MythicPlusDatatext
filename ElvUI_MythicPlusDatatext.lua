@@ -69,9 +69,9 @@ local abbrevs = {
 	[199] = L["BRH"], -- Black Rock Hold
 	[244] = L["AD"], -- Atal'Dazar
 	[248] = L["WM"], -- Waycrest Manor
-	[456] = L["TotT"], -- Throne of the Tides
-	[463] = L["DOTI:GR"], -- Dawn of the Infinite: Galakrond's Fall
-	[464] = L["DOTI:MR"], -- Dawn of the Infinite: Murozond's Rise
+	[456] = L["TOTT"], -- Throne of the Tides
+	[463] = L["FALL"], -- Dawn of the Infinite: Galakrond's Fall
+	[464] = L["RISE"], -- Dawn of the Infinite: Murozond's Rise
 }
 
 local labelText = {
