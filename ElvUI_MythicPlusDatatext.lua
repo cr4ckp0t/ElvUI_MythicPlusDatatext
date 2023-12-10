@@ -1,20 +1,14 @@
 -------------------------------------------------------------------------------
 -- ElvUI Mythic+ Datatext By Crackpotx
 -------------------------------------------------------------------------------
-local E, _, V, P, G = unpack(ElvUI)
+local E, _, _, P, _ = unpack(ElvUI)
 local DT = E:GetModule("DataTexts")
 local L = E.Libs.ACL:GetLocale("ElvUI_MythicPlusDatatext", false)
 local EP = E.Libs.EP
 local ACH = E.Libs.ACH
 
-local select = select
-local gmatch = gmatch
 local format = format
 local strjoin = strjoin
-local strmatch = strmatch
-local strupper = strupper
-local strsub = strsub
-local strfind = strfind
 local sort = sort
 local tinsert = tinsert
 local tsort = table.sort
@@ -37,20 +31,15 @@ local SecondsToClock = SecondsToClock
 
 local CastSpellByID = CastSpellByID
 local CreateFrame = CreateFrame
-local GetContainerItemInfo = GetContainerItemInfo
-local GetContainerNumSlots = GetContainerNumSlots
 local IsAddOnLoaded = IsAddOnLoaded
 local IsShiftKeyDown = IsShiftKeyDown
 local IsSpellKnown = IsSpellKnown
 local LoadAddOn = LoadAddOn
 local ToggleLFDParentFrame = ToggleLFDParentFrame
-local UnitAura = UnitAura
 
-local NUM_BAG_SLOTS = NUM_BAG_SLOTS
 local SECONDS_PER_HOUR = SECONDS_PER_HOUR
 
 local displayString = ""
-local currentKeyString = ""
 local mpErrorString = ""
 local rgbColor = { r = 0, g = 0, b = 0 }
 local frame = CreateFrame("Frame", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "UIDropDownMenuTemplate")
