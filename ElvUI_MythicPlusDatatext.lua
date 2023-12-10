@@ -35,10 +35,13 @@ local C_MythicPlus_GetOwnedKeystoneLevel = C_MythicPlus.GetOwnedKeystoneLevel
 
 local SecondsToClock = SecondsToClock
 
+local CastSpellByID = CastSpellByID
 local CreateFrame = CreateFrame
 local GetContainerItemInfo = GetContainerItemInfo
 local GetContainerNumSlots = GetContainerNumSlots
 local IsAddOnLoaded = IsAddOnLoaded
+local IsShiftKeyDown = IsShiftKeyDown
+local IsSpellKnown = IsSpellKnown
 local LoadAddOn = LoadAddOn
 local ToggleLFDParentFrame = ToggleLFDParentFrame
 local UnitAura = UnitAura
@@ -50,12 +53,14 @@ local displayString = ""
 local currentKeyString = ""
 local mpErrorString = ""
 local rgbColor = { r = 0, g = 0, b = 0 }
+local frame = CreateFrame("Frame", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "UIDropDownMenuTemplate")
 
 local dungeons = {}
+local dungeonNames = {}
 local timerData = {
 	[168] = { 1224, 1632, 2040 }, -- The Everbloom
 	[198] = { 1260, 1680, 2100 }, -- Darkheart Thicket
-	[199] = { 1080, 1440, 1800 }, -- Black Rock Hold
+	[199] = { 1080, 1440, 1800 }, -- Black Rook Hold
 	[244] = { 1320, 1760, 2200 }, -- Atal'Dazar
 	[248] = { 1404, 1728, 2160 }, -- Waycrest Manor
 	[456] = { 1080, 1440, 1800 }, -- Throne of the Tides
@@ -66,12 +71,23 @@ local timerData = {
 local abbrevs = {
 	[168] = L["EB"], -- The Everbloom
 	[198] = L["DHT"], -- Darkheart Thicket
-	[199] = L["BRH"], -- Black Rock Hold
+	[199] = L["BRH"], -- Black Rook Hold
 	[244] = L["AD"], -- Atal'Dazar
 	[248] = L["WM"], -- Waycrest Manor
 	[456] = L["TOTT"], -- Throne of the Tides
 	[463] = L["FALL"], -- Dawn of the Infinite: Galakrond's Fall
 	[464] = L["RISE"], -- Dawn of the Infinite: Murozond's Rise
+}
+
+local dungeonTeleports = {
+	[168] = 159901, -- The Everbloom (Path of the Verdant)
+	[198] = 424163, -- Darkheart Thicket (Path of the Nightmare Lord)
+	[199] = 424153, -- Black Rook Hold (Path of the Ancient Horrors)
+	[244] = 424187, -- Atal'Dazar (Path of the Golden Tomb)
+	[248] = 424167, -- Waycrest Manor (Path of the Heart's Bane)
+	[456] = 424142, -- Throne of the Tides (Path of the Tidehunter)
+	[463] = 424197, -- Dawn of the Infinite: Galakrond's Fall (Path of Twisted Time)
+	[464] = 424197, -- Dawn of the Infinite: Murozond's Rise (Path of Twisted Time)
 }
 
 local labelText = {
@@ -121,9 +137,14 @@ local affixes = {
 local function GetKeystoneDungeonList()
 	local maps = C_ChallengeMode_GetMapTable()
 	for i = 1, #maps do
-		local mapName, _, _, _ = C_ChallengeMode_GetMapUIInfo(maps[i])
-		dungeons[maps[i]] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]] }
+		local mapName, _, _, texture = C_ChallengeMode_GetMapUIInfo(maps[i])
+		dungeons[i] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]], texture = texture, teleport = dungeonTeleports[maps[i]] }
+		dungeonNames[maps[i]] = mapName
 	end
+
+	sort(dungeons, function(a, b)
+		return a.name < b.name
+	end)
 end
 
 local function GetPlusString(duration, timers)
@@ -135,6 +156,34 @@ local function GetPlusString(duration, timers)
 		return "+"
 	else
 		return ""
+	end
+end
+
+local function CreateMenu(self, level)
+	local sorted = {}
+	local i = 1
+	for _, map in pairs(dungeons) do
+		if IsSpellKnown(map.teleport) then
+			sorted[i] = { name = map.name, teleport = map.teleport, texture = map.texture }
+			i = i + 1
+		end
+	end
+
+	if #sorted > 0 then
+		sort(sorted, function(a, b)
+			return a.name < b.name
+		end)
+
+		for _, map in pairs(sorted) do
+			UIDropDownMenu_AddButton({
+				hasArrow = false,
+				notCheckable = true,
+				colorCode = "|cffffffff",
+				text = map.name,
+				icon = map.texture,
+				func = function() CastSpellByID(map.teleport) end,
+			})
+		end
 	end
 end
 
@@ -151,7 +200,7 @@ local function OnEnter(self)
 
 	if keystoneId ~= nil then
 		DT.tooltip:AddLine(L["Your Keystone"])
-		DT.tooltip:AddDoubleLine(L["Dungeon"], dungeons[keystoneId].name, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+		DT.tooltip:AddDoubleLine(L["Dungeon"], dungeonNames[keystoneId], 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 		DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 		DT.tooltip:AddLine(" ")
 	end
@@ -214,6 +263,7 @@ local function OnEnter(self)
 
 	DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
 	DT.tooltip:AddDoubleLine(L["Right-Click"], L["Toggle Great Vault"], nil, nil, nil, 1, 1, 1)
+	DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
 
 	DT.tooltip:Show()
 end
@@ -228,11 +278,11 @@ local function OnEvent(self, event)
 	end
 
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
-	if not keystoneId or dungeons[keystoneId] == nil then
+	if not keystoneId or dungeonNames[keystoneId] == nil then
 		self.text:SetFormattedText(mpErrorString, L["No Keystone"])
 		return
 	end
-	local instanceName = E.db.mplusdt.abbrevName == true and dungeons[keystoneId].abbrev or dungeons[keystoneId].name
+	local instanceName = E.db.mplusdt.abbrevName == true and abbrevs[keystoneId] or dungeonNames[keystoneId]
 	self.text:SetFormattedText(
 		displayString,
 		E.db.mplusdt.labelText == "none" and "" or strjoin("", labelText[E.db.mplusdt.labelText], ": "),
@@ -253,14 +303,19 @@ local function OnUpdate(self, elapsed)
 end
 
 local function OnClick(self, button)
-	if button == "LeftButton" then
-		if not PVEFrame then return end
-		if PVEFrame:IsShown() then
-			PVEFrameTab1:Click()
-			ToggleLFDParentFrame()
-		else
-			ToggleLFDParentFrame()
-			PVEFrameTab3:Click()
+	if IsShiftKeyDown() then
+		DT.tooltip:Hide()
+		ToggleDropDownMenu(1, nil, frame, self, 0, 0)
+	elseif button == "LeftButton" then
+		if not IsShiftKeyDown() then
+			if not PVEFrame then return end
+			if PVEFrame:IsShown() then
+				PVEFrameTab1:Click()
+				ToggleLFDParentFrame()
+			else
+				ToggleLFDParentFrame()
+				PVEFrameTab3:Click()
+			end
 		end
 	else
 		-- load weekly rewards, if not loaded
@@ -278,6 +333,13 @@ local function OnClick(self, button)
 		end
 	end
 end
+
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:SetScript("OnEvent", function(self, event, ...) 
+	self.initialize = CreateMenu
+	self.dispalyMode = "MENU"
+	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+end)
 
 local function GetClassColor(val)
 	local class, _ = UnitClassBase("player")
