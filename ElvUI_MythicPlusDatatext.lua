@@ -66,8 +66,7 @@ local abbrevs = {
 	[456] = L["TOTT"], -- Throne of the Tides
 	[463] = L["FALL"], -- Dawn of the Infinite: Galakrond's Fall
 	[464] = L["RISE"], -- Dawn of the Infinite: Murozond's Rise
-}
-
+}--[[
 local dungeonTeleports = {
 	[168] = 159901, -- The Everbloom (Path of the Verdant)
 	[198] = 424163, -- Darkheart Thicket (Path of the Nightmare Lord)
@@ -78,6 +77,7 @@ local dungeonTeleports = {
 	[463] = 424197, -- Dawn of the Infinite: Galakrond's Fall (Path of Twisted Time)
 	[464] = 424197, -- Dawn of the Infinite: Murozond's Rise (Path of Twisted Time)
 }
+]]
 
 local labelText = {
 	mPlus = L["M+"],
@@ -127,7 +127,7 @@ local function GetKeystoneDungeonList()
 	local maps = C_ChallengeMode_GetMapTable()
 	for i = 1, #maps do
 		local mapName, _, _, texture = C_ChallengeMode_GetMapUIInfo(maps[i])
-		dungeons[i] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]], texture = texture, teleport = dungeonTeleports[maps[i]] }
+		dungeons[i] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]], texture = texture }
 		dungeonNames[maps[i]] = mapName
 	end
 
@@ -148,6 +148,7 @@ local function GetPlusString(duration, timers)
 	end
 end
 
+--[[
 local function CreateMenu(self, level)
 	local sorted = {}
 	local i = 1
@@ -170,11 +171,18 @@ local function CreateMenu(self, level)
 				colorCode = "|cffffffff",
 				text = map.name,
 				icon = map.texture,
-				func = function() CastSpellByID(map.teleport) end,
+				func = function()
+					local spellName = GetSpellInfo(map.teleport)
+					local button = CreateFrame("Button", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "InsecureActionButtonTemplate")
+					button:SetAttribute("type", "spell")
+					button:SetAttribute("spell", spellName)
+					button:Click("LeftButton", true)
+				end,
 			})
 		end
 	end
 end
+]]
 
 local function OnEnter(self)
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
@@ -252,7 +260,7 @@ local function OnEnter(self)
 
 	DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
 	DT.tooltip:AddDoubleLine(L["Right-Click"], L["Toggle Great Vault"], nil, nil, nil, 1, 1, 1)
-	DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
+	--DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
 
 	DT.tooltip:Show()
 end
@@ -292,19 +300,18 @@ local function OnUpdate(self, elapsed)
 end
 
 local function OnClick(self, button)
-	if IsShiftKeyDown() then
+	--[[if IsShiftKeyDown() then
 		DT.tooltip:Hide()
 		ToggleDropDownMenu(1, nil, frame, self, 0, 0)
-	elseif button == "LeftButton" then
-		if not IsShiftKeyDown() then
-			if not PVEFrame then return end
-			if PVEFrame:IsShown() then
-				PVEFrameTab1:Click()
-				ToggleLFDParentFrame()
-			else
-				ToggleLFDParentFrame()
-				PVEFrameTab3:Click()
-			end
+	else]]
+	if button == "LeftButton" then
+		if not PVEFrame then return end
+		if PVEFrame:IsShown() then
+			PVEFrameTab1:Click()
+			ToggleLFDParentFrame()
+		else
+			ToggleLFDParentFrame()
+			PVEFrameTab3:Click()
 		end
 	else
 		-- load weekly rewards, if not loaded
@@ -323,12 +330,14 @@ local function OnClick(self, button)
 	end
 end
 
+--[[
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event, ...) 
 	self.initialize = CreateMenu
 	self.dispalyMode = "MENU"
 	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 end)
+]]
 
 local function GetClassColor(val)
 	local class, _ = UnitClassBase("player")
