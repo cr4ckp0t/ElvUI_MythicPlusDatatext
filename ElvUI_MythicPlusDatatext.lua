@@ -188,79 +188,81 @@ local function OnEnter(self)
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
 	local currentAffixes = C_MythicPlus_GetCurrentAffixes()
 	local currentScore = C_ChallengeMode_GetOverallDungeonScore()
+	local curerntSeason = C_MythicPlus_GetCurrentSeason()
 	local color = C_ChallengeMode_GetDungeonScoreRarityColor(currentScore)
-	if currentAffixes == nil or currentScore == nil then
-		return
-	end
 
 	DT.tooltip:ClearLines()
 
-	if keystoneId ~= nil then
-		DT.tooltip:AddLine(L["Your Keystone"])
-		DT.tooltip:AddDoubleLine(L["Dungeon"], dungeonNames[keystoneId], 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-		DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+	if currentSeason ~= nil then
+		if keystoneId ~= nil then
+			DT.tooltip:AddLine(L["Your Keystone"])
+			DT.tooltip:AddDoubleLine(L["Dungeon"], dungeonNames[keystoneId], 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+			DT.tooltip:AddDoubleLine(L["Level"], keystoneLevel, 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+			DT.tooltip:AddLine(" ")
+		end
+
+		DT.tooltip:AddLine((L["Season %d"]):format(currentSeason - 8))
+		DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
+		if #affixes > 0 then
+			DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+		end
 		DT.tooltip:AddLine(" ")
-	end
 
-	DT.tooltip:AddLine((L["Season %d"]):format(C_MythicPlus_GetCurrentSeason() - 8))
-	DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
-	if #affixes > 0 then
-		DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
-	end
-	DT.tooltip:AddLine(" ")
+		if currentScore > 0 then
+			for _, map in pairs(dungeons) do
+				local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
+				local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
 
-	if currentScore > 0 then
-		for _, map in pairs(dungeons) do
-			local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
-			local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
+				if overAllScore ~= nil then
+					if overAllScore and inTimeInfo or overTimeInfo then
+						local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
+						if not dungeonColor then
+							dungeonColor = HIGHLIGHT_FONT_COLOR
+						end
 
-			if overAllScore ~= nil then
-				if overAllScore and inTimeInfo or overTimeInfo then
-					local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
-					if not dungeonColor then
-						dungeonColor = HIGHLIGHT_FONT_COLOR
-					end
-
-					-- highlight the players key
-					if E.db.mplusdt.highlightKey and map.id == keystoneId then
-						DT.tooltip:AddDoubleLine(map.name, overAllScore, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-					else
-						DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-					end
-				else
-					if E.db.mplusdt.highlightKey and map.id == keystoneId then
-						DT.tooltip:AddLine(map.name, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
-					else
-						DT.tooltip:AddLine(map.name)
-					end
-				end
-
-				if affixScores and #affixScores > 0 then
-					-- sort fortified before tyrannical
-					tsort(affixScores, function(x, y) return x.name < y.name end)
-					for _, affixInfo in ipairs(affixScores) do
-						local r, g, b = 1, 1, 1
-
-						-- add an exclamation graphic to what this week's main affix (fort or tyran)
-						local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
-
-						if affixInfo.overTime then r, g, b = .6, .6, .6 end
-						if affixInfo.durationSec >= SECONDS_PER_HOUR then
-							DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+						-- highlight the players key
+						if E.db.mplusdt.highlightKey and map.id == keystoneId then
+							DT.tooltip:AddDoubleLine(map.name, overAllScore, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
 						else
-							DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+							DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+						end
+					else
+						if E.db.mplusdt.highlightKey and map.id == keystoneId then
+							DT.tooltip:AddLine(map.name, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
+						else
+							DT.tooltip:AddLine(map.name)
 						end
 					end
-				end
 
-				DT.tooltip:AddLine(" ")
+					if affixScores and #affixScores > 0 then
+						-- sort fortified before tyrannical
+						tsort(affixScores, function(x, y) return x.name < y.name end)
+						for _, affixInfo in ipairs(affixScores) do
+							local r, g, b = 1, 1, 1
+
+							-- add an exclamation graphic to what this week's main affix (fort or tyran)
+							local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
+
+							if affixInfo.overTime then r, g, b = .6, .6, .6 end
+							if affixInfo.durationSec >= SECONDS_PER_HOUR then
+								DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+							else
+								DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+							end
+						end
+					end
+
+					DT.tooltip:AddLine(" ")
+				end
 			end
 		end
-	end
 
-	DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
-	DT.tooltip:AddDoubleLine(L["Right-Click"], L["Toggle Great Vault"], nil, nil, nil, 1, 1, 1)
-	--DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
+		DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
+		DT.tooltip:AddDoubleLine(L["Right-Click"], L["Toggle Great Vault"], nil, nil, nil, 1, 1, 1)
+		--DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
+	else 
+		DT.tooltip:AddLine(L["No Current Mythic+ Season"], 1, 1, 1)
+	end
 
 	DT.tooltip:Show()
 end
@@ -272,6 +274,12 @@ local function OnEvent(self, event)
 
 	if #dungeons == 0 then
 		GetKeystoneDungeonList()
+	end
+
+	local curerntSeason = C_MythicPlus_GetCurrentSeason()
+	if not currentSeason then
+		self.text:SetFormattedText(mpErrorString, L["No M+ Season"])
+		return
 	end
 
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
