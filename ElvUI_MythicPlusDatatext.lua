@@ -188,7 +188,7 @@ local function OnEnter(self)
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
 	local currentAffixes = C_MythicPlus_GetCurrentAffixes()
 	local currentScore = C_ChallengeMode_GetOverallDungeonScore()
-	local curerntSeason = C_MythicPlus_GetCurrentSeason()
+	local currentSeason = C_MythicPlus_GetCurrentSeason()
 	local color = C_ChallengeMode_GetDungeonScoreRarityColor(currentScore)
 
 	DT.tooltip:ClearLines()
@@ -276,7 +276,7 @@ local function OnEvent(self, event)
 		GetKeystoneDungeonList()
 	end
 
-	local curerntSeason = C_MythicPlus_GetCurrentSeason()
+	local currentSeason = C_MythicPlus_GetCurrentSeason()
 	if not currentSeason then
 		self.text:SetFormattedText(mpErrorString, L["No M+ Season"])
 		return
