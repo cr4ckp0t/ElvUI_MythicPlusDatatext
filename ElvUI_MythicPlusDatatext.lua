@@ -193,7 +193,7 @@ local function OnEnter(self)
 
 	DT.tooltip:ClearLines()
 
-	if currentSeason ~= nil then
+	if currentSeason ~= nil and currentSeason ~= 12 then
 		if keystoneId ~= nil then
 			DT.tooltip:AddLine(L["Your Keystone"])
 			DT.tooltip:AddDoubleLine(L["Dungeon"], dungeonNames[keystoneId], 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
@@ -277,7 +277,7 @@ local function OnEvent(self, event)
 	end
 
 	local currentSeason = C_MythicPlus_GetCurrentSeason()
-	if not currentSeason then
+	if not currentSeason or currentSeason == 12 then
 		self.text:SetFormattedText(mpErrorString, L["No M+ Season"])
 		return
 	end
