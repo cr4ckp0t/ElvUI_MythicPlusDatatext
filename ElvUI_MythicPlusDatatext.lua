@@ -201,9 +201,9 @@ local function OnEnter(self)
 			DT.tooltip:AddLine(" ")
 		end
 
-		DT.tooltip:AddLine((L["Season %d"]):format(currentSeason - 8))
+		DT.tooltip:AddDoubleLine(L["The War Within"], (L["Season %d"]):format(currentSeason - 12), nil, nil, nil, 1, 1, 1)
 		DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
-		if #affixes > 0 then
+		if #currentAffixes > 0 then
 			DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 		end
 		DT.tooltip:AddLine(" ")
