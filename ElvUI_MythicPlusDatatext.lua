@@ -47,37 +47,26 @@ local frame = CreateFrame("Frame", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "
 local dungeons = {}
 local dungeonNames = {}
 local timerData = {
-	[168] = { 1224, 1632, 2040 }, -- The Everbloom
-	[198] = { 1260, 1680, 2100 }, -- Darkheart Thicket
-	[199] = { 1080, 1440, 1800 }, -- Black Rook Hold
-	[244] = { 1320, 1760, 2200 }, -- Atal'Dazar
-	[248] = { 1404, 1728, 2160 }, -- Waycrest Manor
-	[456] = { 1080, 1440, 1800 }, -- Throne of the Tides
-	[463] = { 1188, 1584, 1980 }, -- Dawn of the Infinite: Galakrond's Fall
-	[464] = { 1224, 1632, 2040 }, -- Dawn of the Infinite: Murozond's Rise
+	[353] = { 1188, 1584, 1980 }, -- Siege of Boralus
+	[375] = { 1080, 1440, 1800 }, -- Mists of Tirna Scithe
+	[376] = { 1116, 1488, 1860 }, -- The Necrotic Wake
+	[501] = { 1188, 1584, 1980 }, -- The Stonevault
+	[502] = { 1260, 1680, 2100 }, -- City of Threads
+	[503] = { 1080, 1440, 1800 }, -- Ara-Kara, City of Echoes
+	[505] = { 1116, 1488, 1860 }, -- The Dawnbreaker
+	[507] = { 1224, 1632, 2040 }, -- Grim Batol
 }
 
 local abbrevs = {
-	[168] = L["EB"], -- The Everbloom
-	[198] = L["DHT"], -- Darkheart Thicket
-	[199] = L["BRH"], -- Black Rook Hold
-	[244] = L["AD"], -- Atal'Dazar
-	[248] = L["WM"], -- Waycrest Manor
-	[456] = L["TOTT"], -- Throne of the Tides
-	[463] = L["FALL"], -- Dawn of the Infinite: Galakrond's Fall
-	[464] = L["RISE"], -- Dawn of the Infinite: Murozond's Rise
-}--[[
-local dungeonTeleports = {
-	[168] = 159901, -- The Everbloom (Path of the Verdant)
-	[198] = 424163, -- Darkheart Thicket (Path of the Nightmare Lord)
-	[199] = 424153, -- Black Rook Hold (Path of the Ancient Horrors)
-	[244] = 424187, -- Atal'Dazar (Path of the Golden Tomb)
-	[248] = 424167, -- Waycrest Manor (Path of the Heart's Bane)
-	[456] = 424142, -- Throne of the Tides (Path of the Tidehunter)
-	[463] = 424197, -- Dawn of the Infinite: Galakrond's Fall (Path of Twisted Time)
-	[464] = 424197, -- Dawn of the Infinite: Murozond's Rise (Path of Twisted Time)
+	[353] = L["SIEGE"],
+	[375] = L["MISTS"],
+	[376] = L["WAKE"],
+	[501] = L["SV"],
+	[502] = L["COT"],
+	[503] = L["ARAK"],
+	[505] = L["DAWN"],
+	[507] = L["GB"],
 }
-]]
 
 local labelText = {
 	mPlus = L["M+"],
@@ -121,6 +110,14 @@ local affixes = {
 	[135] = L["Afflicted"],
 	[136] = L["Incorporeal"],
 	[137] = L["Shielding"],
+
+	-- TWW Season 1
+	[147] = L["Xal'atath's Guile"],
+	[148] = L["Xal'atath's Bargain: Ascendant"],
+	[152] = L["Challenger's Peril"],
+	[158] = L["Xal'atath's Bargain: Voidbound"],
+	[159] = L["Xal'atath's Bargain: Oblivion"],
+	[160] = L["Xal'atath's Bargain: Devour"],
 }
 
 local function GetKeystoneDungeonList()
@@ -148,42 +145,6 @@ local function GetPlusString(duration, timers)
 	end
 end
 
---[[
-local function CreateMenu(self, level)
-	local sorted = {}
-	local i = 1
-	for _, map in pairs(dungeons) do
-		if IsSpellKnown(map.teleport) then
-			sorted[i] = { name = map.name, teleport = map.teleport, texture = map.texture }
-			i = i + 1
-		end
-	end
-
-	if #sorted > 0 then
-		sort(sorted, function(a, b)
-			return a.name < b.name
-		end)
-
-		for _, map in pairs(sorted) do
-			UIDropDownMenu_AddButton({
-				hasArrow = false,
-				notCheckable = true,
-				colorCode = "|cffffffff",
-				text = map.name,
-				icon = map.texture,
-				func = function()
-					local spellName = GetSpellInfo(map.teleport)
-					local button = CreateFrame("Button", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "InsecureActionButtonTemplate")
-					button:SetAttribute("type", "spell")
-					button:SetAttribute("spell", spellName)
-					button:Click("LeftButton", true)
-				end,
-			})
-		end
-	end
-end
-]]
-
 local function OnEnter(self)
 	local keystoneId, keystoneLevel = C_MythicPlus_GetOwnedKeystoneChallengeMapID(), C_MythicPlus_GetOwnedKeystoneLevel()
 	local currentAffixes = C_MythicPlus_GetCurrentAffixes()
@@ -193,7 +154,7 @@ local function OnEnter(self)
 
 	DT.tooltip:ClearLines()
 
-	if currentSeason ~= nil and currentSeason ~= 12 then
+	if currentSeason ~= nil then
 		if keystoneId ~= nil then
 			DT.tooltip:AddLine(L["Your Keystone"])
 			DT.tooltip:AddDoubleLine(L["Dungeon"], dungeonNames[keystoneId], 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
@@ -259,7 +220,6 @@ local function OnEnter(self)
 
 		DT.tooltip:AddDoubleLine(L["Left-Click"], L["Toggle Mythic+ Page"], nil, nil, nil, 1, 1, 1)
 		DT.tooltip:AddDoubleLine(L["Right-Click"], L["Toggle Great Vault"], nil, nil, nil, 1, 1, 1)
-		--DT.tooltip:AddDoubleLine(L["Shift + Click"], L["Dungeon Teleport Menu"], nil, nil, nil, 1, 1, 1)
 	else 
 		DT.tooltip:AddLine(L["No Current Mythic+ Season"], 1, 1, 1)
 	end
@@ -308,10 +268,6 @@ local function OnUpdate(self, elapsed)
 end
 
 local function OnClick(self, button)
-	--[[if IsShiftKeyDown() then
-		DT.tooltip:Hide()
-		ToggleDropDownMenu(1, nil, frame, self, 0, 0)
-	else]]
 	if button == "LeftButton" then
 		if not PVEFrame then return end
 		if PVEFrame:IsShown() then
@@ -337,15 +293,6 @@ local function OnClick(self, button)
 		end
 	end
 end
-
---[[
-frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:SetScript("OnEvent", function(self, event, ...) 
-	self.initialize = CreateMenu
-	self.dispalyMode = "MENU"
-	self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-end)
-]]
 
 local function GetClassColor(val)
 	local class, _ = UnitClassBase("player")
