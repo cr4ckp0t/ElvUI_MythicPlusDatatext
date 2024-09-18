@@ -13,6 +13,9 @@ local sort = sort
 local tinsert = tinsert
 local tsort = table.sort
 
+local C_AddOns_IsAddOnLoaded = C_AddOns.IsAddOnLoaded
+local C_AddOns_LoadAddOn = C_AddOns.LoadAddOn
+
 local C_ChallengeMode_GetDungeonScoreRarityColor = C_ChallengeMode.GetDungeonScoreRarityColor
 local C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor
 local C_ChallengeMode_GetMapTable = C_ChallengeMode.GetMapTable
@@ -31,10 +34,8 @@ local SecondsToClock = SecondsToClock
 
 local CastSpellByID = CastSpellByID
 local CreateFrame = CreateFrame
-local IsAddOnLoaded = IsAddOnLoaded
 local IsShiftKeyDown = IsShiftKeyDown
 local IsSpellKnown = IsSpellKnown
-local LoadAddOn = LoadAddOn
 local ToggleLFDParentFrame = ToggleLFDParentFrame
 
 local SECONDS_PER_HOUR = SECONDS_PER_HOUR
@@ -112,12 +113,12 @@ local affixes = {
 	[137] = L["Shielding"],
 
 	-- TWW Season 1
-	[147] = L["Xal'atath's Guile"],
-	[148] = L["Xal'atath's Bargain: Ascendant"],
+	[147] = L["Guile"],
+	[148] = L["Ascendant"],
 	[152] = L["Challenger's Peril"],
-	[158] = L["Xal'atath's Bargain: Voidbound"],
-	[159] = L["Xal'atath's Bargain: Oblivion"],
-	[160] = L["Xal'atath's Bargain: Devour"],
+	[158] = L["Voidbound"],
+	[159] = L["Oblivion"],
+	[160] = L["Devour"],
 }
 
 local function GetKeystoneDungeonList()
@@ -165,7 +166,7 @@ local function OnEnter(self)
 		DT.tooltip:AddDoubleLine(L["The War Within"], (L["Season %d"]):format(currentSeason - 12), nil, nil, nil, 1, 1, 1)
 		DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
 		if #currentAffixes > 0 then
-			DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+			DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id], affixes[currentAffixes[5].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor. b)
 		end
 		DT.tooltip:AddLine(" ")
 
@@ -202,13 +203,13 @@ local function OnEnter(self)
 							local r, g, b = 1, 1, 1
 
 							-- add an exclamation graphic to what this week's main affix (fort or tyran)
-							local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
+							-- local fortTyran = (affixInfo.name == affixes[currentAffixes[1].id]) and ("%s%s"):format(affixInfo.name, "|TInterface\\OptionsFrame\\UI-OptionsFrame-NewFeatureIcon:14:14|t") or affixInfo.name
 
 							if affixInfo.overTime then r, g, b = .6, .6, .6 end
 							if affixInfo.durationSec >= SECONDS_PER_HOUR then
-								DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+								DT.tooltip:AddDoubleLine(affixInfo.name:gsub(L["Xal'atath's Bargain: "], ""), format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 							else
-								DT.tooltip:AddDoubleLine(fortTyran, format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+								DT.tooltip:AddDoubleLine(affixInfo.name:gsub(L["Xal'atath's Bargain: "], ""), format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 							end
 						end
 					end
@@ -279,8 +280,8 @@ local function OnClick(self, button)
 		end
 	else
 		-- load weekly rewards, if not loaded
-		if not IsAddOnLoaded("Blizzard_WeeklyRewards") then
-			LoadAddOn("Blizzard_WeeklyRewards")
+		if not C_AddOns_IsAddOnLoaded("Blizzard_WeeklyRewards") then
+			C_AddOns_LoadAddOn("Blizzard_WeeklyRewards")
 		end
 
 		if not WeeklyRewardsFrame then return end
