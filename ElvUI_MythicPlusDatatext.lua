@@ -49,25 +49,25 @@ local frame = CreateFrame("Frame", "ElvUI_MythicPlusDatatextMenu", E.UIParent, "
 local dungeons = {}
 local dungeonNames = {}
 local timerData = {
-	[353] = { 1188, 1584, 1980 }, -- Siege of Boralus
-	[375] = { 1080, 1440, 1800 }, -- Mists of Tirna Scithe
-	[376] = { 1116, 1488, 1860 }, -- The Necrotic Wake
-	[501] = { 1188, 1584, 1980 }, -- The Stonevault
-	[502] = { 1260, 1680, 2100 }, -- City of Threads
-	[503] = { 1080, 1440, 1800 }, -- Ara-Kara, City of Echoes
-	[505] = { 1116, 1488, 1860 }, -- The Dawnbreaker
-	[507] = { 1224, 1632, 2040 }, -- Grim Batol
+	[247] = { 1188, 1584, 1980 }, -- The MOTHERLODE!!
+	[370] = { 1152, 1536, 1920 }, -- Operation Mechagon: Workshop
+	[382] = { 1224, 1632, 2040 }, -- Theater of Pain
+	[499] = { 1116, 1488, 1860 }, -- Priory of the Sacred Flame
+	[500] = { 1116, 1488, 1860 }, -- The Rookery
+	[504] = { 1188, 1584, 1980 }, -- Darkflame Cleft
+	[506] = { 1188, 1584, 1980 }, -- Cinderbrew Meadery
+	[525] = { 1188, 1584, 1980 }, -- Operation: Floodgate
 }
 
 local abbrevs = {
-	[353] = L["SIEGE"],
-	[375] = L["MISTS"],
-	[376] = L["WAKE"],
-	[501] = L["SV"],
-	[502] = L["COT"],
-	[503] = L["ARAK"],
-	[505] = L["DAWN"],
-	[507] = L["GB"],
+	[247] = L["ML"],
+	[370] = L["WORK"],
+	[382] = L["TOP"],
+	[499] = L["PSF"],
+	[500] = L["ROOK"],
+	[504] = L["DFC"],
+	[506] = L["BREW"],
+	[525] = L["FLOOD"],
 }
 
 local labelText = {
@@ -120,6 +120,7 @@ local affixes = {
 	[158] = L["Voidbound"],
 	[159] = L["Oblivion"],
 	[160] = L["Devour"],
+	[162] = L["Pulsar"],
 }
 
 local function GetKeystoneDungeonList()
@@ -180,7 +181,7 @@ local function OnEnter(self)
 			DT.tooltip:AddDoubleLine(L["The War Within"], (L["Season %d"]):format(currentSeason - 12), nil, nil, nil, 1, 1, 1)
 			DT.tooltip:AddDoubleLine(L["Mythic+ Rating"], currentScore, 1, 1, 1, color.r, color.g, color.b)
 			if #currentAffixes > 0 then
-				DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id], affixes[currentAffixes[5].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
+				DT.tooltip:AddDoubleLine(L["Affixes"], ("%s, %s, %s, %s"):format(affixes[currentAffixes[1].id], affixes[currentAffixes[2].id], affixes[currentAffixes[3].id], affixes[currentAffixes[4].id]), 1, 1, 1, rgbColor.r, rgbColor.g, rgbColor.b)
 			end
 			DT.tooltip:AddLine(" ")
 
