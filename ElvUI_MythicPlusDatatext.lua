@@ -123,6 +123,20 @@ local affixes = {
 	[162] = L["Pulsar"],
 }
 
+local function dump(o)
+	if type(o) == 'table' then
+	   local s = '{ '
+	   for k,v in pairs(o) do
+		  if type(k) ~= 'number' then k = '"'..k..'"' end
+		  s = s .. '['..k..'] = ' .. dump(v) .. ','
+	   end
+	   return s .. '} '
+	else
+	   return tostring(o)
+	end
+end
+ 
+
 local function GetKeystoneDungeonList()
 	local maps = C_ChallengeMode_GetMapTable()
 	for i = 1, #maps do
@@ -146,6 +160,11 @@ local function GetPlusString(duration, timers)
 	else
 		return ""
 	end
+end
+
+local function GetBestDungeonRun(affixScores, timerDataSeconds)
+	tsort(affixScores, function(x, y) return x.durationSec < y.durationSec end)
+	return ("%s%d %s"):format(GetPlusString(affixScores[1].durationSec, timerDataSeconds), affixScores[1].level, SecondsToClock(affixScores[1].durationSec, affixScores[1].durationSec >= SECONDS_PER_HOUR and true or false))
 end
 
 local function OnEnter(self)
@@ -186,6 +205,7 @@ local function OnEnter(self)
 			DT.tooltip:AddLine(" ")
 
 			if currentScore > 0 then
+				DT.tooltip:AddLine(L["Best Runs by Dungeon"])
 				for _, map in pairs(dungeons) do
 					local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
 					local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
@@ -199,9 +219,9 @@ local function OnEnter(self)
 
 							-- highlight the players key
 							if E.db.mplusdt.highlightKey and map.id == keystoneId then
-								DT.tooltip:AddDoubleLine(map.name, overAllScore, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+								DT.tooltip:AddDoubleLine(map.name, ("%s (%s)"):format(overAllScore, GetBestDungeonRun(affixScores, map.timerData)), E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
 							else
-								DT.tooltip:AddDoubleLine(map.name, overAllScore, nil, nil, nil, dungeonColor.r, dungeonColor.g, dungeonColor.b)
+								DT.tooltip:AddDoubleLine(map.name, ("%s (%s)"):format(overAllScore, GetBestDungeonRun(affixScores, map.timerData)), 1, 1, 1, dungeonColor.r, dungeonColor.g, dungeonColor.b)
 							end
 						else
 							if E.db.mplusdt.highlightKey and map.id == keystoneId then
@@ -211,26 +231,27 @@ local function OnEnter(self)
 							end
 						end
 
-						if affixScores and #affixScores > 0 then
+						--[[if affixScores and #affixScores > 0 then
 							-- sort affix name
 							tsort(affixScores, function(x, y) return x.name < y.name end)
+							--print('Affix Scores:', dump(affixScores))
 							for _, affixInfo in ipairs(affixScores) do
 								local r, g, b = 1, 1, 1
 								if affixInfo.overTime then r, g, b = .6, .6, .6 end
 								if affixInfo.durationSec >= SECONDS_PER_HOUR then
-									DT.tooltip:AddDoubleLine(affixInfo.name:gsub(L["Xal'atath's Bargain: "], ""), format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+									DT.tooltip:AddDoubleLine(L["Best Run"], format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 								else
-									DT.tooltip:AddDoubleLine(affixInfo.name:gsub(L["Xal'atath's Bargain: "], ""), format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
+									DT.tooltip:AddDoubleLine(L["Best Run"], format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
 								end
 							end
-						end
-						DT.tooltip:AddLine(" ")
+						end]]
 					end
 				end
 			end
 		else 
 			DT.tooltip:AddLine(L["No Current Mythic+ Season"], 1, 1, 1)
 		end
+		DT.tooltip:AddLine(" ")
 	else
 		local runHistory = C_MythicPlus_GetRunHistory(false, true)
 		DT.tooltip:ClearLines()
