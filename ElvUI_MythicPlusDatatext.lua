@@ -53,7 +53,7 @@ local timerData = {
 	[370] = { 1152, 1536, 1920 }, -- Operation Mechagon: Workshop
 	[382] = { 1224, 1632, 2040 }, -- Theater of Pain
 	[499] = { 1116, 1488, 1860 }, -- Priory of the Sacred Flame
-	[500] = { 1116, 1488, 1860 }, -- The Rookery
+	[500] = { 1044, 1392, 1740 }, -- The Rookery
 	[504] = { 1188, 1584, 1980 }, -- Darkflame Cleft
 	[506] = { 1188, 1584, 1980 }, -- Cinderbrew Meadery
 	[525] = { 1188, 1584, 1980 }, -- Operation: Floodgate
@@ -135,20 +135,6 @@ local function dump(o)
 	   return tostring(o)
 	end
 end
- 
-
-local function GetKeystoneDungeonList()
-	local maps = C_ChallengeMode_GetMapTable()
-	for i = 1, #maps do
-		local mapName, _, _, texture = C_ChallengeMode_GetMapUIInfo(maps[i])
-		dungeons[i] = { id = maps[i], name = mapName, abbrev = abbrevs[maps[i]], timerData = timerData[maps[i]], texture = texture }
-		dungeonNames[maps[i]] = mapName
-	end
-
-	sort(dungeons, function(a, b)
-		return a.name < b.name
-	end)
-end
 
 local function GetPlusString(duration, timers)
 	if duration <= timers[1] then
@@ -165,6 +151,72 @@ end
 local function GetBestDungeonRun(affixScores, timerDataSeconds)
 	tsort(affixScores, function(x, y) return x.durationSec < y.durationSec end)
 	return ("%s%d %s"):format(GetPlusString(affixScores[1].durationSec, timerDataSeconds), affixScores[1].level, SecondsToClock(affixScores[1].durationSec, affixScores[1].durationSec >= SECONDS_PER_HOUR and true or false))
+end
+
+local function GetKeystoneDungeonList()
+	if C_MythicPlus_GetCurrentSeason() == nil then return false end
+	local maps = C_ChallengeMode_GetMapTable()
+	if maps ~= nil then
+		for i = 1, #maps do
+			local mapName, _, _, texture = C_ChallengeMode_GetMapUIInfo(maps[i])
+			local currentScore = C_ChallengeMode_GetOverallDungeonScore()
+			local level, dungeonScore = 0, 0
+			local durationText, plusString, overTime = "", "", false
+			if currentScore ~= nil then
+				local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(maps[i])
+				if inTimeInfo and overTimeInfo then
+					local whichIsBetter = inTimeInfo.dungeonScore > overTimeInfo.dungeonScore
+					level = whichIsBetter and inTimeInfo.level or overTimeInfo.level
+					dungeonScore = whichIsBetter and inTimeInfo.dungeonScore or overTimeInfo.dungeonScore
+				elseif inTimeInfo or overTimeInfo then
+					level = inTimeInfo and inTimeInfo.level or overTimeInfo.level
+					dungeonScore = inTimeInfo and inTimeInfo.dungeonScore or overTimeInfo.dungeonScore
+				end
+
+				-- get specific scores per affix
+				local affixScores, _ = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(maps[i])
+				if affixScores ~= nil then
+					local fastestAffixScore = TableUtil.FindMin(affixScores, function(affixScore) return affixScore.durationSec end)
+					if fastestAffixScore then
+						local displayZeroHours = fastestAffixScore.durationSec >= SECONDS_PER_HOUR
+						durationText = SecondsToClock(fastestAffixScore.durationSec, displayZeroHours)
+						plusString = GetPlusString(fastestAffixScore.durationSec, timerData[maps[i]])
+						overTime = fastestAffixScore.overTime
+					end
+				end
+			end
+			dungeons[i] = {
+				id = maps[i],
+				name = mapName,
+				abbrev = abbrevs[maps[i]],
+				timerData = timerData[maps[i]],
+				texture = texture,
+				level = level,
+				dungeonScore = dungeonScore,
+				durationText = durationText,
+				overTime = overTime,
+				plusString = plusString,
+			}
+			dungeonNames[maps[i]] = mapName
+		end
+
+		sort(dungeons, function(a, b)
+			return a.dungeonScore > b.dungeonScore
+		end)
+	else 
+		return false
+	end
+end
+
+local function RGBtoHEX(r, g, b)
+	return ("%02X%02X%02X"):format((r * 255), (g * 255), (b * 255))
+end
+
+local function GetFormattedDungeonString(map, overallScore)
+	local dungeonString = "|cff%s%d|r |cff%s(%s%d %s)|r"
+	local color = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overallScore) or HIGHLIGHT_FONT_COLOR
+	local timerColor = map.overTime and RGBtoHEX(.6, .6, .6) or "FFFFFF"
+	return dungeonString:format(RGBtoHEX(color.r, color.g, color.b), map.dungeonScore, timerColor, map.plusString, map.level, map.durationText)
 end
 
 local function OnEnter(self)
@@ -207,44 +259,11 @@ local function OnEnter(self)
 			if currentScore > 0 then
 				DT.tooltip:AddLine(L["Best Runs by Dungeon"])
 				for _, map in pairs(dungeons) do
-					local inTimeInfo, overTimeInfo = C_MythicPlus_GetSeasonBestForMap(map.id)
-					local affixScores, overAllScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
-
-					if overAllScore ~= nil then
-						if overAllScore and inTimeInfo or overTimeInfo then
-							local dungeonColor = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overAllScore)
-							if not dungeonColor then
-								dungeonColor = HIGHLIGHT_FONT_COLOR
-							end
-
-							-- highlight the players key
-							if E.db.mplusdt.highlightKey and map.id == keystoneId then
-								DT.tooltip:AddDoubleLine(map.name, ("%s (%s)"):format(overAllScore, GetBestDungeonRun(affixScores, map.timerData)), E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-							else
-								DT.tooltip:AddDoubleLine(map.name, ("%s (%s)"):format(overAllScore, GetBestDungeonRun(affixScores, map.timerData)), 1, 1, 1, dungeonColor.r, dungeonColor.g, dungeonColor.b)
-							end
-						else
-							if E.db.mplusdt.highlightKey and map.id == keystoneId then
-								DT.tooltip:AddLine(map.name, E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
-							else
-								DT.tooltip:AddLine(map.name)
-							end
-						end
-
-						--[[if affixScores and #affixScores > 0 then
-							-- sort affix name
-							tsort(affixScores, function(x, y) return x.name < y.name end)
-							--print('Affix Scores:', dump(affixScores))
-							for _, affixInfo in ipairs(affixScores) do
-								local r, g, b = 1, 1, 1
-								if affixInfo.overTime then r, g, b = .6, .6, .6 end
-								if affixInfo.durationSec >= SECONDS_PER_HOUR then
-									DT.tooltip:AddDoubleLine(L["Best Run"], format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, true), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
-								else
-									DT.tooltip:AddDoubleLine(L["Best Run"], format("%s (%s%d)", SecondsToClock(affixInfo.durationSec, false), GetPlusString(affixInfo.durationSec, map.timerData), affixInfo.level), r, g, b, r, g, b)
-								end
-							end
-						end]]
+					local _, overallScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
+					if E.db.mplusdt.highlightKey and map.id == keystoneId then
+						DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
+					else 
+						DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), 1, 1 ,1)
 					end
 				end
 			end
@@ -306,7 +325,7 @@ local function OnEvent(self, event)
 		C_MythicPlus_RequestCurrentAffixes()
 	end
 
-	if #dungeons == 0 then
+	if #dungeons == 0 or event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" or event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
 		GetKeystoneDungeonList()
 	end
 
