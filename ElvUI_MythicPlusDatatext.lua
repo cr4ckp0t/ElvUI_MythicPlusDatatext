@@ -52,9 +52,9 @@ local timerData = {
 	[247] = { 1188, 1584, 1980 }, -- The MOTHERLODE!!
 	[370] = { 1152, 1536, 1920 }, -- Operation Mechagon: Workshop
 	[382] = { 1224, 1632, 2040 }, -- Theater of Pain
-	[499] = { 1116, 1488, 1860 }, -- Priory of the Sacred Flame
+	[499] = { 1170, 1560, 1950 }, -- Priory of the Sacred Flame
 	[500] = { 1044, 1392, 1740 }, -- The Rookery
-	[504] = { 1188, 1584, 1980 }, -- Darkflame Cleft
+	[504] = { 1116, 1488, 1860 }, -- Darkflame Cleft
 	[506] = { 1188, 1584, 1980 }, -- Cinderbrew Meadery
 	[525] = { 1188, 1584, 1980 }, -- Operation: Floodgate
 }
@@ -325,7 +325,7 @@ local function OnEvent(self, event)
 		C_MythicPlus_RequestCurrentAffixes()
 	end
 
-	if #dungeons == 0 or event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" or event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" then
+	if #dungeons == 0 or event == "MYTHIC_PLUS_NEW_WEEKLY_RECORD" or event == "MYTHIC_PLUS_CURRENT_AFFIX_UPDATE" or event == "ELVUI_FORCE_UPDATE" then
 		GetKeystoneDungeonList()
 	end
 
