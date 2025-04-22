@@ -1,8 +1,8 @@
-## Interface: 110100
+## Interface: 110105
 ## Author: Crackpot
 ## Title: ElvUI Mythic+ Datatext
 ## IconTexture: Interface\AddOns\ElvUI_MythicPlusDatatext\Media\crackpot
-## Version: 1.9.3
+## Version: 1.9.4
 ## Notes: Datatext for your season Mythic+ progress.
 ## RequiredDeps: ElvUI
 
@@ -19,3 +19,4 @@ Locales\zhCN.lua
 Locales\zhTW.lua
 
 ElvUI_MythicPlusDatatext.lua
+
