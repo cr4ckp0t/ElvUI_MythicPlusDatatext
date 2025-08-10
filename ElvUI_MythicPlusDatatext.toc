@@ -2,7 +2,7 @@
 ## Author: Crackpot
 ## Title: ElvUI Mythic+ Datatext
 ## IconTexture: Interface\AddOns\ElvUI_MythicPlusDatatext\Media\crackpot
-## Version: 1.9.6
+## Version: 1.10.0
 ## Notes: Datatext for your season Mythic+ progress.
 ## RequiredDeps: ElvUI
 
