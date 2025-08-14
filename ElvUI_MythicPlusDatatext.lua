@@ -238,7 +238,7 @@ end
 
 local function GetFormattedDungeonString(map, overallScore)
 	local dungeonString = "|cff%s%d|r |cff%s(%s%d %s)|r"
-	local color = C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overallScore) or HIGHLIGHT_FONT_COLOR
+	local color = overallScore ~= nil and C_ChallengeMode_GetSpecificDungeonOverallScoreRarityColor(overallScore) or HIGHLIGHT_FONT_COLOR
 	local timerColor = map.overTime and RGBtoHEX(.6, .6, .6) or "FFFFFF"
 	return dungeonString:format(RGBtoHEX(color.r, color.g, color.b), map.dungeonScore, timerColor, map.plusString, map.level, map.durationText)
 end
@@ -284,10 +284,12 @@ local function OnEnter(self)
 				DT.tooltip:AddLine(L["Best Runs by Dungeon"])
 				for _, map in pairs(dungeons) do
 					local _, overallScore = C_MythicPlus_GetSeasonBestAffixScoreInfoForMap(map.id)
-					if E.db.mplusdt.highlightKey and map.id == keystoneId then
-						DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
-					else 
-						DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), 1, 1 ,1)
+					if overallScore ~= nil then
+						if E.db.mplusdt.highlightKey and map.id == keystoneId then
+							DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), E.db.mplusdt.highlightColor.r, E.db.mplusdt.highlightColor.g, E.db.mplusdt.highlightColor.b)
+						else 
+							DT.tooltip:AddDoubleLine(map.name, GetFormattedDungeonString(map, overallScore), 1, 1 ,1)
+						end
 					end
 				end
 			end
